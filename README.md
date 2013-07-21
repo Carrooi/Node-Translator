@@ -102,7 +102,7 @@ Now we have to add plural forms to our dictionary. (/app/lang/homepage/promo/en.
 And now you can finally use it.
 
 ```
-var message = translator.translate('homepage.promo.box.cars', 2');		// output: 2 cars
+var message = translator.translate('homepage.promo.box.cars', 2);		// output: 2 cars
 ```
 
 ## Replacements
@@ -147,7 +147,7 @@ var message = translator.translate('dictionary.info', {		// output: display some
 
 ## List of translations
 
-Sometimes you may want to display list of texts but don't want to create for translations with these names: item1, item2,
+Sometimes you may want to display list of texts but don't want to create translations with these names: item1, item2,
 item3 and so on. What if you will want to add some other? This is not the good idea.
 
 But you can create lists in your dictionary and translator will return array of translations.
