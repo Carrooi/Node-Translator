@@ -17,8 +17,5 @@
 	"engines": {
 		"node": "*"
 	},
-	"main": "./lib/Translator.js",
-	"dependencies": {
-		"q": "0.9.6"
-	}
+	"main": "./lib/Translator.js"
 }
