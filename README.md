@@ -55,6 +55,9 @@ dots instead of slashes and without language code.
 
 ## Plural forms
 
+There is already registered 138 plural forms and you can find list of them on [this](http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html)
+site. If you will miss some language, wrote issue or register it by your own.
+
 First you have to set plural forms rule for language which you want to use. This is little javascript code which will
 be called every time, you want to use plural forms and will decide which plural form should be used.
 

@@ -1,3 +1,5 @@
+pluralForms = require './pluralForms'
+
 class Translator
 
 
@@ -10,6 +12,14 @@ class Translator
 	replacements: {}
 
 	data: {}
+
+
+	constructor: ->
+		count = 0
+		for language, data of pluralForms
+			count++
+			@addPluralForm(language, data.count, data.form)
+		console.log count
 
 
 	addPluralForm: (language, count, form) ->
