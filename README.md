@@ -2,6 +2,10 @@
 
 Node translator with plural forms support. Works also in browser.
 
+## Changelog
+
+Changelog is in the bottom of this readme.
+
 ## Dictionary files
 
 This translator supposed to be translator working with key -> translation principe. For easier manipulation, you can have
@@ -198,3 +202,11 @@ Usage:
 ```
 var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 oranges, 6 bananas ]
 ```
+
+## Changelog
+
+* 1.2.0
+	+ Created changelog list
+	+ Added tests
+	+ Tests can be run with `npm test` command
+	+ Repaired some bugs

@@ -33,11 +33,23 @@ class Translator
 		return @
 
 
+	removeReplacement: (search) ->
+		if typeof @replacements[search] == 'undefined'
+			throw new Error 'Replacement ' + search + ' was not found'
+
+		delete @replacements[search]
+		return @
+
+
 	loadCategory: (path, name) ->
 		categoryName = path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
 			name = path + '/' + @language + '.' + name
-			@data[categoryName] = @normalizeTranslations(require(@directory + '/' + name))
+			try
+				data = require(@directory + '/' + name)
+				@data[categoryName] = @normalizeTranslations(data)
+			catch e
+				return {}
 
 		return @data[categoryName]
 
@@ -81,7 +93,7 @@ class Translator
 	pluralize: (message, translation, count = null) ->
 		if count != null
 			if typeof translation[0] == 'string'
-				pluralForm = 'n=' + count + ';plural=' + @plurals[@language].form + ';'
+				pluralForm = 'n=' + count + ';plural=+(' + @plurals[@language].form + ');'
 
 				n = null
 				plural = null
@@ -130,7 +142,7 @@ class Translator
 		name = message.substr(num + 1)
 		num = path.lastIndexOf('.')
 		category = path.substr(num + 1)
-		path = path.substr(0, num).replace('.', '/')
+		path = path.substr(0, num).replace(/\./g, '/')
 		result =
 			path: path
 			category: category
