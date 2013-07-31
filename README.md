@@ -205,8 +205,28 @@ var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 ora
 
 ## Changelog
 
+* 1.2.1
+	+ Added all other changes to changelog
+
 * 1.2.0
 	+ Created changelog list
 	+ Added tests
 	+ Tests can be run with `npm test` command
 	+ Repaired some bugs
+
+* 1.1.1
+	+ Prepared for tests
+	+ Removed forgotten debug code
+
+* 1.1.0
+	+ Added plural forms from [translatehouse.org](http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html) site
+
+* 1.0.2
+	+ Added MIT license
+
+* 1.0.1
+	+ Corrected some mistakes in readme
+	+ Removed unnecessary dependencies
+
+* 1.0.0
+	+ Initial commit
