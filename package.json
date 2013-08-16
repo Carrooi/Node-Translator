@@ -24,6 +24,6 @@
 		"should": "1.2.2"
 	},
 	"scripts": {
-		"test": "cd ./test; mocha ./index.js;"
+		"test": "cd ./test; mocha ./index.js --reporter spec;"
 	}
 }
