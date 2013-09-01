@@ -4,11 +4,27 @@
 	var path = require('path');
 	var Translator = require('../lib/Translator');
 
-	var translator = new Translator;
-	translator.language = 'en';
-	translator.directory = path.resolve('./data');
+	var _path = path.resolve('./data');
+
+	var translator;
 
 	describe('Translator', function() {
+
+		beforeEach(function() {
+			translator = new Translator;
+			translator.language = 'en';
+			translator.directory = _path;
+		});
+
+		afterEach(function() {
+			translator = null;
+		});
+
+		describe('#constructor', function() {
+			it('should contain some plural forms', function() {
+				translator.plurals.should.not.be.eql({});
+			});
+		});
 
 		describe('#normalizeTranslations()', function() {
 			it('should return normalized object with dictionary', function() {
