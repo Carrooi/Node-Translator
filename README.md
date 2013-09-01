@@ -205,6 +205,10 @@ var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 ora
 
 ## Changelog
 
+* 1.2.3
+	+ Added some test
+	+ Potential bug fix
+
 * 1.2.2
 	+ Added just some keyword
 	+ New test reporter

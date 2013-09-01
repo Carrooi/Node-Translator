@@ -7,14 +7,18 @@ class Translator
 
 	language: null
 
-	plurals: {}
+	plurals: null
 
-	replacements: {}
+	replacements: null
 
-	data: {}
+	data: null
 
 
 	constructor: ->
+		@plurals = {}
+		@replacements = {}
+		@data = {}
+
 		count = 0
 		for language, data of pluralForms
 			count++
