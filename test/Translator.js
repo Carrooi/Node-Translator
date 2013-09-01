@@ -44,7 +44,7 @@
 
 		describe('#loadCategory()', function() {
 			it('should load parsed dictionary', function() {
-				translator.loadCategory('web/pages/homepage', 'promo').should.eql({
+				translator.loadCategory('web/pages/homepage', 'simple').should.eql({
 					title: ['Title of promo box']
 				});
 			});
@@ -91,6 +91,18 @@
 
 			it('should return original text if text is eclosed in \':\'', function() {
 				translator.translate(':do.not.translate.me:').should.be.equal('do.not.translate.me');
+			});
+
+			it('should return array of list', function() {
+				translator.translate('web.pages.homepage.promo.list').should.be.eql(['1st item', '2nd item', '3rd item', '4th item', '5th item']);
+			});
+
+			it('should return translation for plural form', function() {
+				translator.translate('web.pages.homepage.promo.cars', 3).should.be.equal('3 cars');
+			});
+
+			it('should return translation of list for plural form', function() {
+				translator.translate('web.pages.homepage.promo.fruits', 3).should.be.eql(['3 bananas', '3 citrons', '3 oranges']);
 			});
 		});
 

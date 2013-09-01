@@ -1,3 +1,28 @@
 {
-	"title": "Title of promo box"
+	"title": "Title of promo box",
+	"list": [
+		["1st item"],
+		["2nd item"],
+		["3rd item"],
+		["4th item"],
+		["5th item"]
+	],
+	"cars": [
+		"1 car",
+		"%count% cars"
+	],
+	"fruits": [
+		[
+			"1 banana",
+			"%count% bananas"
+		],
+		[
+			"1 citron",
+			"%count% citrons"
+		],
+		[
+			"1 orange",
+			"%count% oranges"
+		]
+	]
 }
