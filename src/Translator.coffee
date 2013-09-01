@@ -19,9 +19,7 @@ class Translator
 		@replacements = {}
 		@data = {}
 
-		count = 0
 		for language, data of pluralForms
-			count++
 			@addPluralForm(language, data.count, data.form)
 
 
