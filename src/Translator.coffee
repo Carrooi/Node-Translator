@@ -14,7 +14,7 @@ class Translator
 	data: null
 
 
-	constructor: ->
+	constructor: (@directory = @directory) ->
 		@plurals = {}
 		@replacements = {}
 		@data = {}
