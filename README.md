@@ -42,10 +42,9 @@ When you have got your dictionaries, you can setup translator and start using it
 
 ```
 var Translator = require('translator');
-var translator = new Translator;
+var translator = new Translator('/app/lang');
 
 translator.language = 'en';
-translator.directory = '/app/lang';
 
 var message = translator.translate('homepage.promo.box.text');		// output: and some really long text
 ```
@@ -208,6 +207,7 @@ var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 ora
 * 1.2.3
 	+ Added some test
 	+ Potential bug fix
+	+ Directory can be set in constructor
 
 * 1.2.2
 	+ Added just some keyword
