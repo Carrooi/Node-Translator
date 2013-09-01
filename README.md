@@ -1,6 +1,6 @@
 # translator
 
-Node translator with plural forms support. Works also in browser.
+Node translator with plural forms support. Works also in browser (for example with [simq](https://npmjs.org/package/simq)).
 
 This package is compatible with [translator](https://packagist.org/packages/sakren/translator) for PHP.
 
@@ -53,7 +53,7 @@ var message = translator.translate('homepage.promo.box.text');		// output: and s
 
 You have to set language, and base directory path. Be careful with this, because if you set relative path, then it will
 be relative to Translator class. Translator using require function for loading dictionaries, so it not depends on fs module
-and can be used also on browser (for example with [simq](https://npmjs.org/package/simq)).
+and can be used also on browser.
 
 Then you can begin with translating. You can see that messages to translate are paths to your dictionary files but with
 dots instead of slashes and without language code.
