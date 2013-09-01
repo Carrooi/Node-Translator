@@ -2,6 +2,8 @@
 
 Node translator with plural forms support. Works also in browser.
 
+This package is compatible with [translator](https://packagist.org/packages/sakren/translator) for PHP.
+
 ## Changelog
 
 Changelog is in the bottom of this readme.
@@ -49,7 +51,7 @@ translator.language = 'en';
 var message = translator.translate('homepage.promo.box.text');		// output: and some really long text
 ```
 
-You have to set language, and base directory path. Be carefull with this, because if you set relative path, then it will
+You have to set language, and base directory path. Be careful with this, because if you set relative path, then it will
 be relative to Translator class. Translator using require function for loading dictionaries, so it not depends on fs module
 and can be used also on browser (for example with [simq](https://npmjs.org/package/simq)).
 
@@ -146,8 +148,8 @@ Dictionary:
 Usage:
 
 ```
-var message = translator.translate('dictionary.info', {		// output: display some random variable: 2 books
-	somethins: '2 books'
+var message = translator.translate('dictionary.info', null, {		// output: display some random variable: 2 books
+	something: '2 books'
 });
 ```
 
@@ -208,6 +210,7 @@ var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 ora
 	+ Added some test
 	+ Potential bug fix
 	+ Directory can be set in constructor
+	+ Some typos in readme
 
 * 1.2.2
 	+ Added just some keyword
