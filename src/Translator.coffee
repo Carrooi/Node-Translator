@@ -92,6 +92,26 @@ class Translator
 		return message
 
 
+	translatePairs: (message, key, value, count = null, args = {}) ->
+		key = "#{message}.#{key}"
+		value = "#{message}.#{value}"
+
+		key = @translate(key, count, args)
+		value = @translate(value, count, args)
+
+		if Object.prototype.toString.call(key) != '[object Array]' || Object.prototype.toString.call(value) != '[object Array]'
+			throw new Error 'Translations are not arrays'
+
+		if key.length != value.length
+			throw new Error 'Keys and values translations have not got the same length'
+
+		result = {}
+		for k, i in key
+			result[k] = value[i]
+
+		return result
+
+
 	pluralize: (message, translation, count = null) ->
 		if count != null
 			if typeof translation[0] == 'string'

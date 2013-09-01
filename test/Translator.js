@@ -106,6 +106,25 @@
 			});
 		});
 
+		describe('#translatePairs()', function() {
+			it('should throw an error if message to translate are not arrays', function() {
+				(function() { translator.translatePairs('web.pages.homepage.promo', 'title', 'list'); }).should.throw();
+			});
+
+			it('should throw an error if keys and values have not got the same length', function() {
+				(function() { translator.translatePairs('web.pages.homepage.promo', 'list', 'keys'); }).should.throw();
+			});
+
+			it('should return object with keys and values translations', function() {
+				translator.translatePairs('web.pages.homepage.promo', 'keys', 'values').should.be.eql({
+					'1st title': '1st text',
+					'2nd title': '2nd text',
+					'3rd title': '3rd text',
+					'4th title': '4th text'
+				});
+			});
+		});
+
 	});
 
 })();

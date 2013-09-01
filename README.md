@@ -204,10 +204,46 @@ Usage:
 var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 oranges, 6 bananas ]
 ```
 
+## List of pairs
+
+If you have got one list of for example titles or headlines and other list with texts for these titles, you can let this
+translator to automatically combine these two lists together into object.
+
+Dictionary:
+
+```
+{
+	"titles": [
+		["first"],
+		["second"]
+	],
+	"texts": [
+		["text for first title"]
+		["text for second title"]
+	]
+}
+```
+
+Usage:
+
+```
+translator.translatePairs('dictionary', 'titles', 'texts');
+```
+
+Output:
+
+```
+{
+	first: 'text for first title',
+	second: 'text for second title'
+}
+```
+
 ## Changelog
 
-* 1.2.4
+* 1.3.0
 	+ Added some tests
+	+ Added method translatePairs
 
 * 1.2.3
 	+ Added some test

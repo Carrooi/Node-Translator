@@ -24,5 +24,17 @@
 			"1 orange",
 			"%count% oranges"
 		]
+	],
+	"keys": [
+		["1st title"],
+		["2nd title"],
+		["3rd title"],
+		["4th title"]
+	],
+	"values": [
+		["1st text"],
+		["2nd text"],
+		["3rd text"],
+		["4th text"]
 	]
 }
