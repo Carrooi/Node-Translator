@@ -79,8 +79,14 @@
 		describe('#prepareTranslation()', function() {
 			it('should return expanded translation with arguments', function() {
 				translator.addReplacement('item', 'car');
-				translator.prepareTranslation('%item% has got %count% %append%.', 5, {append: 'things'}).should.be.equal('car has got 5 things.');
+				translator.prepareTranslation('%item% has got %count% %append%.', {count: 5, append: 'things'}).should.be.equal('car has got 5 things.');
 				translator.removeReplacement('item');
+			});
+		});
+
+		describe('#applyReplacements()', function() {
+			it('should add replacements to text', function() {
+				translator.applyReplacements('%one% %two% %three%', {one: 1, two: 2, three: 3}).should.be.equal('1 2 3');
 			});
 		});
 
@@ -103,6 +109,12 @@
 
 			it('should return translation of list for plural form', function() {
 				translator.translate('web.pages.homepage.promo.fruits', 3).should.be.eql(['3 bananas', '3 citrons', '3 oranges']);
+			});
+
+			it('should return translation with replacement in message', function() {
+				translator.addReplacement('one', 1);
+				translator.addReplacement('dictionary', 'promo');
+				translator.translate('web.pages.homepage.%dictionary%.%name%', null, {two: 2, name: 'advanced'}).should.be.equal('1 2');
 			});
 		});
 

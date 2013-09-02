@@ -79,15 +79,18 @@ class Translator
 
 		if typeof message != 'string' then return message
 
+		if count != null then args.count = count
+
 		if (match = message.match(/^\:(.*)\:$/)) != null
 			message = match[1]
 		else
+			message = @applyReplacements(message, args)
 			translation = @findTranslation(message)
 
 			if translation != null
 				message = @pluralize(message, translation, count)
 
-		message = @prepareTranslation(message, count, args)
+		message = @prepareTranslation(message, args)
 
 		return message
 
@@ -137,23 +140,28 @@ class Translator
 		return message
 
 
-	prepareTranslation: (message, count = null, args = {}) ->
+	prepareTranslation: (message, args = {}) ->
 		if typeof message == 'string'
-			replacements = @replacements
-			args.count = count if count != null
-
-			for name, value of args
-				replacements[name] = value
-
-			for name, value of replacements
-				if value != false
-					pattern = new RegExp('%' + name + '%', 'g')
-					message = message.replace(pattern, value)
+			message = @applyReplacements(message, args)
 		else
 			result = []
 			for m in message
-				result.push(@prepareTranslation(m, count, args))
+				result.push(@prepareTranslation(m, args))
 			message = result
+
+		return message
+
+
+	applyReplacements: (message, args = {}) ->
+		replacements = @replacements
+
+		for name, value of args
+			replacements[name] = value
+
+		for name, value of replacements
+			if value != false
+				pattern = new RegExp('%' + name + '%', 'g')
+				message = message.replace(pattern, value)
 
 		return message
 

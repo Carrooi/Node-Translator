@@ -36,5 +36,6 @@
 		["2nd text"],
 		["3rd text"],
 		["4th text"]
-	]
+	],
+	"advanced": "%one% %two%"
 }
