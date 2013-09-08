@@ -30,6 +30,31 @@
 			it('should return normalized object with dictionary', function() {
 				translator.normalizeTranslations({car: 'car', bus: ['bus']}).should.eql({car: ['car'], bus: ['bus']});
 			});
+
+			it('should return normalized translations without comments', function() {
+				translator.normalizeTranslations({
+					one: [
+						'# hello #',
+						'car',
+						'# house #',
+						'something'
+					]
+				}).should.be.eql({one: ['car', 'something']});
+			});
+
+			it('should return normalized translations for list with comments', function() {
+				translator.normalizeTranslations({
+					one: [
+						['first'],
+						'# comment #',
+						[
+							'second',
+							'# comment #'
+						],
+						['third']
+					]
+				}).should.be.eql({one: [['first'], ['second'], ['third']]});
+			});
 		});
 
 		describe('#getMessageInfO()', function() {

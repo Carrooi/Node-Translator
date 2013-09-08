@@ -12,12 +12,14 @@
 		"%count% cars"
 	],
 	"fruits": [
+		"# this is some random comment #",
 		[
 			"1 banana",
 			"%count% bananas"
 		],
 		[
 			"1 citron",
+			"# another comment #",
 			"%count% citrons"
 		],
 		[

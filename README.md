@@ -268,7 +268,41 @@ Output:
 }
 ```
 
+## Comments in dictionaries
+
+You can write some comments into your dictionaries. These comments has to be enclosed into `#`.
+
+```
+{
+	"message": [
+		"# this message will be displayed in home page #",
+		 "translation of message"
+	]
+}
+```
+
+Or with lists:
+
+```
+{
+	"list": [
+		"# this is list of some items #",
+		[
+			"# first item in list #",
+			"first"
+		],
+		[
+			"# second item in list #",
+			"second"
+		]
+	]
+}
+```
+
 ## Changelog
+
+* 1.4.0
+	+ Support for comments in dictionaries
 
 * 1.3.1
 	+ Replacements in messages

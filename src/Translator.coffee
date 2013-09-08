@@ -62,7 +62,17 @@ class Translator
 			if typeof translation == 'string'
 				result[name] = [translation]
 			else if Object.prototype.toString.call(translation) == '[object Array]'
-				result[name] = translation
+				result[name] = []
+				for t in translation
+					if typeof t == 'object'
+						buf = []
+						for sub in t
+							if /^\#.*\#$/.test(sub) == false
+								buf.push sub
+						result[name].push buf
+					else
+						if /^\#.*\#$/.test(t) == false
+							result[name].push t
 
 		return result
 
