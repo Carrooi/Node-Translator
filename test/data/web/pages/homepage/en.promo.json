@@ -39,5 +39,10 @@
 		["3rd text"],
 		["4th text"]
 	],
-	"advanced": "%one% %two%"
+	"advanced": "%one% %two%",
+	"-- newList": [
+		"first",
+		"second",
+		"third"
+	]
 }

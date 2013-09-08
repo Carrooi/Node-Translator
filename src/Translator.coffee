@@ -59,6 +59,11 @@ class Translator
 	normalizeTranslations: (translations) ->
 		result = {}
 		for name, translation of translations
+			list = false
+			if (match = name.match(/^--\s(.*)/)) != null
+				name = match[1]
+				list = true
+
 			if typeof translation == 'string'
 				result[name] = [translation]
 			else if Object.prototype.toString.call(translation) == '[object Array]'
@@ -72,6 +77,7 @@ class Translator
 						result[name].push buf
 					else
 						if /^\#.*\#$/.test(t) == false
+							if list == true && typeof t != 'object' then t = [t]
 							result[name].push t
 
 		return result

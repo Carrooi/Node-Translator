@@ -233,6 +233,20 @@ Usage:
 var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 oranges, 6 bananas ]
 ```
 
+### Shorter syntax
+
+If your list contains just singular forms translations, you can use shorter syntax for it.
+
+```
+{
+	"-- myList": [
+		"first item",
+		"second item",
+		"third item"
+	]
+}
+```
+
 ## List of pairs
 
 If you have got one list of for example titles or headlines and other list with texts for these titles, you can let this
@@ -303,6 +317,7 @@ Or with lists:
 
 * 1.4.0
 	+ Support for comments in dictionaries
+	+ Shorter syntax for lists
 
 * 1.3.1
 	+ Replacements in messages

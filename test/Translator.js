@@ -55,6 +55,16 @@
 					]
 				}).should.be.eql({one: [['first'], ['second'], ['third']]});
 			});
+
+			it('should return normalized translations for list with new syntax', function() {
+				translator.normalizeTranslations({
+					'-- list': [
+						'first',
+						'second',
+						'third'
+					]
+				}).should.be.eql({list: [['first'], ['second'], ['third']]});
+			});
 		});
 
 		describe('#getMessageInfO()', function() {
