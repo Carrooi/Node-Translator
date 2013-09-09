@@ -313,11 +313,25 @@ Or with lists:
 }
 ```
 
+## Caching
+
+Turning on cache will make loading your dictionaries faster. They don't need to be parsed in any way, because parsed version
+is already in cache.
+
+This translator uses [cache-storage](https://npmjs.org/package/cache-storage) package.
+
+```
+var FileStorage = require('cache-storage/Storage/FileStorage');
+
+translator.setCacheStorage(new FileStorage('./path/to/cache/directory'));
+```
+
 ## Changelog
 
 * 1.4.0
 	+ Support for comments in dictionaries
 	+ Shorter syntax for lists
+	+ Support for caching with [cache-storage](https://npmjs.org/package/cache-storage)
 
 * 1.3.1
 	+ Replacements in messages
