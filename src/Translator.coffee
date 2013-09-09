@@ -48,12 +48,16 @@ class Translator
 		if typeof @data[categoryName] == 'undefined'
 			name = path + '/' + @language + '.' + name
 			try
-				data = require(@directory + '/' + name)
-				@data[categoryName] = @normalizeTranslations(data)
+				@data[categoryName] = @loadFromFile(@directory + '/' + name)
 			catch e
 				return {}
 
 		return @data[categoryName]
+
+
+	loadFromFile: (path) ->
+		data = require(path)
+		return @normalizeTranslations(data)
 
 
 	normalizeTranslations: (translations) ->
