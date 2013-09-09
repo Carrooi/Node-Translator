@@ -20,6 +20,9 @@
 		"node": "*"
 	},
 	"main": "./lib/Translator.js",
+	"dependencies": {
+		"cache-storage": "latest"
+	},
 	"devDependencies": {
 		"should": "1.2.2"
 	},

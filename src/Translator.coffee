@@ -1,4 +1,6 @@
 pluralForms = require './pluralForms'
+Cache = require 'cache-storage'
+Storage = require 'cache-storage/Storage/Storage'
 
 class Translator
 
@@ -13,6 +15,8 @@ class Translator
 
 	data: null
 
+	cache: null
+
 
 	constructor: (@directory = @directory) ->
 		@plurals = {}
@@ -21,6 +25,13 @@ class Translator
 
 		for language, data of pluralForms
 			@addPluralForm(language, data.count, data.form)
+
+
+	setCacheStorage: (cacheStorage) ->
+		if cacheStorage !instanceof Storage
+			throw new Error 'Cache storage must be an instance of cache-storage/Storage/Storage'
+
+		@cache = new Cache cacheStorage, 'translator'
 
 
 	addPluralForm: (language, count, form) ->
@@ -47,8 +58,17 @@ class Translator
 		categoryName = path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
 			name = path + '/' + @language + '.' + name
+			filePath = @directory + '/' + name
 			try
-				@data[categoryName] = @loadFromFile(@directory + '/' + name)
+				if @cache == null
+					@data[categoryName] = @loadFromFile(filePath)
+				else
+					data = @cache.load(@language + ':' + categoryName)
+					if data == null
+						data = @cache.save(@language + ':' + categoryName, @loadFromFile(filePath),
+							files: [filePath + '.json']
+						)
+					@data[categoryName] = data
 			catch e
 				return {}
 

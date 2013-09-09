@@ -2,7 +2,10 @@
 
 	var should = require('should');
 	var path = require('path');
+	var fs = require('fs');
 	var Translator = require('../lib/Translator');
+	var FileStorage = require('cache-storage/Storage/FileStorage');
+	var Cache = require('cache-storage');
 
 	var _path = path.resolve('./data');
 
@@ -170,6 +173,48 @@
 					'4th title': '4th text'
 				});
 			});
+		});
+
+		describe('#setCacheStorage()', function() {
+			it('should throw an exception if storage is not the right type', function() {
+				(function() { translator.setCacheStorage(new Array) }).should.throw();
+			});
+
+			it('should create cache instance', function() {
+				var cachePath = path.resolve('./cache');
+				translator.setCacheStorage(new FileStorage(cachePath));
+				translator.cache.should.be.an.instanceOf(Cache);
+			});
+		});
+
+		describe('Cache', function() {
+
+			beforeEach(function() {
+				var cachePath = path.resolve('./cache');
+				translator.setCacheStorage(new FileStorage(cachePath));
+			});
+
+			afterEach(function() {
+				var cachePath = path.resolve('./cache/__translator.json');
+				fs.unlinkSync(cachePath);
+			});
+
+			describe('#translate', function() {
+				it('should load translation from cache', function() {
+					translator.translate('web.pages.homepage.promo.title');
+					translator.cache.load('en:web/pages/homepage/promo').should.be.a('object').and.have.property('title');
+				});
+
+				it('should invalidate cache for dictionary after it is changed', function() {
+					var dictionary = path.resolve('./data/web/pages/homepage/en.simple.json');
+					var data = fs.readFileSync(dictionary, {encoding: 'utf-8'});
+					translator.translate('web.pages.homepage.simple.title');
+					fs.writeFileSync(dictionary, data);
+					translator.cache.invalidate();
+					should.not.exists(translator.cache.load('en:web/pages/homepage/simple'));
+				});
+			});
+
 		});
 
 	});
