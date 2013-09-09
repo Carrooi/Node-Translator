@@ -332,6 +332,7 @@ translator.setCacheStorage(new FileStorage('./path/to/cache/directory'));
 	+ Support for comments in dictionaries
 	+ Shorter syntax for lists
 	+ Support for caching with [cache-storage](https://npmjs.org/package/cache-storage)
+	+ Tests rewritten into coffee script
 
 * 1.3.1
 	+ Replacements in messages
