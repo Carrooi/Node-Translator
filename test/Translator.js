@@ -186,16 +186,18 @@
         return translator.setCacheStorage(new FileStorage(cachePath));
       });
       afterEach(function() {
-        var cachePath;
+        var cachePath, dicPath;
         cachePath = path.resolve('./cache/__translator.json');
-        return fs.unlinkSync(cachePath);
+        dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
+        fs.unlinkSync(cachePath);
+        return fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "1"}');
       });
       return describe('#translate()', function() {
         it('should load translation from cache', function() {
           translator.translate('web.pages.homepage.promo.title');
           return translator.cache.load('en:web/pages/homepage/promo').should.be.a('object').and.have.property('title');
         });
-        return it('should invalidate cache for dictionary after it is changed', function() {
+        it('should invalidate cache for dictionary after it is changed', function() {
           var data, dictionary;
           dictionary = path.resolve('./data/web/pages/homepage/en.simple.json');
           data = fs.readFileSync(dictionary, {
@@ -205,6 +207,27 @@
           fs.writeFileSync(dictionary, data);
           translator.cache.invalidate();
           return should.not.exists(translator.cache.load('en:web/pages/homepage/simple'));
+        });
+        it('should load data from dictionary with version', function() {
+          return translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
+        });
+        it('should change data in dictionary with version, but load the old one', function() {
+          var dicPath;
+          translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
+          dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
+          fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "2"}');
+          translator.invalidate();
+          return translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
+        });
+        return it('should change data in dictionary with version and load it', function() {
+          var dicPath, name;
+          translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
+          dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
+          fs.writeFileSync(dicPath, '{"# version #": 2, "variable": "2"}');
+          translator.invalidate();
+          name = require.resolve('./data/web/pages/homepage/en.cached');
+          delete require.cache[name];
+          return translator.translate('web.pages.homepage.cached.variable').should.be.equal('2');
         });
       });
     });

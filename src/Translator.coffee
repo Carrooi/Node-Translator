@@ -27,6 +27,10 @@ class Translator
 			@addPluralForm(language, data.count, data.form)
 
 
+	invalidate: ->
+		@data = {}
+
+
 	setCacheStorage: (cacheStorage) ->
 		if cacheStorage !instanceof Storage
 			throw new Error 'Cache storage must be an instance of cache-storage/Storage/Storage'
@@ -66,48 +70,59 @@ class Translator
 
 	load: (path, categoryName) ->
 		if @cache == null
-			return @loadFromFile(path)
+			data = @loadFromFile(path)
+			return @normalizeTranslations(data)
 		else
 			data = @cache.load(@language + ':' + categoryName)
+
 			if data == null
-				data = @cache.save(@language + ':' + categoryName, @loadFromFile(path),
-					files: [path + '.json']
-				)
+				data = @loadFromFile(path)
+				data = @normalizeTranslations(data)
+				conds = {}
+				if typeof data['# version #'] == 'undefined'
+					conds.files = [path + '.json']
+
+				@cache.save(@language + ':' + categoryName, data, conds)
+
+			else if typeof data['# version #'] != 'undefined'
+				file = @loadFromFile(path)
+				if typeof file['# version #'] == 'undefined' || data['# version #'] != file['# version #']
+					data = @normalizeTranslations(file)
+					@cache.save(@language + ':' + categoryName, data)
+
 			return data
 
 
 	loadFromFile: (path) ->
-		try
-			data = require(path)
-		catch e
-			data = {}
-		return @normalizeTranslations(data)
+		try data = require(path) catch e then data = {}
+		return data
 
 
 	normalizeTranslations: (translations) ->
 		result = {}
 		for name, translation of translations
-			if name != '# version #'
-				list = false
-				if (match = name.match(/^--\s(.*)/)) != null
-					name = match[1]
-					list = true
+			list = false
+			if (match = name.match(/^--\s(.*)/)) != null
+				name = match[1]
+				list = true
 
-				if typeof translation == 'string'
-					result[name] = [translation]
-				else if Object.prototype.toString.call(translation) == '[object Array]'
-					result[name] = []
-					for t in translation
-						if typeof t == 'object'
-							buf = []
-							for sub in t
-								if /^\#.*\#$/.test(sub) == false
-									buf.push sub
-							result[name].push buf
-						else
-							if /^\#.*\#$/.test(t) == false
-								if list == true && typeof t != 'object' then t = [t]
-								result[name].push t
+			if name == '# version #'
+				result[name] = translation
+			else if typeof translation == 'string'
+				result[name] = [translation]
+			else if Object.prototype.toString.call(translation) == '[object Array]'
+				result[name] = []
+				for t in translation
+					if typeof t == 'object'
+						buf = []
+						for sub in t
+							if /^\#.*\#$/.test(sub) == false
+								buf.push sub
+						result[name].push buf
+					else
+						if /^\#.*\#$/.test(t) == false
+							if list == true && typeof t != 'object' then t = [t]
+							result[name].push t
 
 		return result
 

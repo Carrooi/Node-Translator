@@ -326,6 +326,21 @@ var FileStorage = require('cache-storage/Storage/FileStorage');
 translator.setCacheStorage(new FileStorage('./path/to/cache/directory'));
 ```
 
+### Caching in browser
+
+[Cache-storage](https://npmjs.org/package/cache-storage) can not know if you update some dictionary file in browser. You
+just have to set some kind of version in each dictionary.
+
+Dictionary:
+```
+{
+	"# version #": 125,
+	"title": "this is some title"
+}
+```
+
+Every time you update this dictionary file, please increase this version number to reload data in cache.
+
 ## Changelog
 
 * 1.4.0

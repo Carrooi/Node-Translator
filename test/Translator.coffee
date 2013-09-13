@@ -192,7 +192,9 @@ describe 'Translator', ->
 
 		afterEach( ->
 			cachePath = path.resolve('./cache/__translator.json')
+			dicPath = path.resolve('./data/web/pages/homepage/en.cached.json')
 			fs.unlinkSync(cachePath)
+			fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "1"}')
 		)
 
 		describe '#translate()', ->
@@ -207,3 +209,22 @@ describe 'Translator', ->
 				fs.writeFileSync(dictionary, data)
 				translator.cache.invalidate()
 				should.not.exists(translator.cache.load('en:web/pages/homepage/simple'))
+
+			it 'should load data from dictionary with version', ->
+				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
+
+			it 'should change data in dictionary with version, but load the old one', ->
+				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
+				dicPath = path.resolve('./data/web/pages/homepage/en.cached.json')
+				fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "2"}')
+				translator.invalidate()
+				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
+
+			it 'should change data in dictionary with version and load it', ->
+				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
+				dicPath = path.resolve('./data/web/pages/homepage/en.cached.json')
+				fs.writeFileSync(dicPath, '{"# version #": 2, "variable": "2"}')
+				translator.invalidate()
+				name = require.resolve('./data/web/pages/homepage/en.cached')
+				delete require.cache[name]
+				translator.translate('web.pages.homepage.cached.variable').should.be.equal('2')
