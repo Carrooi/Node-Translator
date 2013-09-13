@@ -59,50 +59,55 @@ class Translator
 		if typeof @data[categoryName] == 'undefined'
 			name = path + '/' + @language + '.' + name
 			filePath = @directory + '/' + name
-			try
-				if @cache == null
-					@data[categoryName] = @loadFromFile(filePath)
-				else
-					data = @cache.load(@language + ':' + categoryName)
-					if data == null
-						data = @cache.save(@language + ':' + categoryName, @loadFromFile(filePath),
-							files: [filePath + '.json']
-						)
-					@data[categoryName] = data
-			catch e
-				return {}
+			@data[categoryName] = @load(filePath, categoryName)
 
 		return @data[categoryName]
 
 
+	load: (path, categoryName) ->
+		if @cache == null
+			return @loadFromFile(path)
+		else
+			data = @cache.load(@language + ':' + categoryName)
+			if data == null
+				data = @cache.save(@language + ':' + categoryName, @loadFromFile(path),
+					files: [path + '.json']
+				)
+			return data
+
+
 	loadFromFile: (path) ->
-		data = require(path)
+		try
+			data = require(path)
+		catch e
+			data = {}
 		return @normalizeTranslations(data)
 
 
 	normalizeTranslations: (translations) ->
 		result = {}
 		for name, translation of translations
-			list = false
-			if (match = name.match(/^--\s(.*)/)) != null
-				name = match[1]
-				list = true
+			if name != '# version #'
+				list = false
+				if (match = name.match(/^--\s(.*)/)) != null
+					name = match[1]
+					list = true
 
-			if typeof translation == 'string'
-				result[name] = [translation]
-			else if Object.prototype.toString.call(translation) == '[object Array]'
-				result[name] = []
-				for t in translation
-					if typeof t == 'object'
-						buf = []
-						for sub in t
-							if /^\#.*\#$/.test(sub) == false
-								buf.push sub
-						result[name].push buf
-					else
-						if /^\#.*\#$/.test(t) == false
-							if list == true && typeof t != 'object' then t = [t]
-							result[name].push t
+				if typeof translation == 'string'
+					result[name] = [translation]
+				else if Object.prototype.toString.call(translation) == '[object Array]'
+					result[name] = []
+					for t in translation
+						if typeof t == 'object'
+							buf = []
+							for sub in t
+								if /^\#.*\#$/.test(sub) == false
+									buf.push sub
+							result[name].push buf
+						else
+							if /^\#.*\#$/.test(t) == false
+								if list == true && typeof t != 'object' then t = [t]
+								result[name].push t
 
 		return result
 
