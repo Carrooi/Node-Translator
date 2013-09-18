@@ -1,4 +1,3 @@
-
 {
 	"ach": {"count": 2, "form": "(n > 1)"},
 	"af": {"count": 2, "form": "(n != 1)"},
