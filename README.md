@@ -4,9 +4,11 @@ Node translator with plural forms support. Works also in browser (for example wi
 
 This package is compatible with [translator](https://packagist.org/packages/sakren/translator) for PHP.
 
-## Changelog
+## Installation
 
-Changelog is in the bottom of this readme.
+```
+$ npm install translator
+```
 
 ## Dictionary files
 
