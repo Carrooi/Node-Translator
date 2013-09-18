@@ -79,7 +79,7 @@ class Translator
 				data = @loadFromFile(path)
 				data = @normalizeTranslations(data)
 				conds = {}
-				if typeof data['# version #'] == 'undefined'
+				if typeof data['# version #'] == 'undefined' && typeof window == 'undefined'
 					conds.files = [path + '.json']
 
 				@cache.save(@language + ':' + categoryName, data, conds)

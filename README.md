@@ -343,6 +343,9 @@ Every time you update this dictionary file, please increase this version number 
 
 ## Changelog
 
+* 1.4.3
+	+ Bug with cache in browser
+
 * 1.4.1 - 1.4.2
 	+ Optimized plural forms
 
