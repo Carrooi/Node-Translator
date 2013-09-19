@@ -159,6 +159,10 @@ describe 'Translator', ->
 				name: 'advanced'
 			).should.be.equal('1 2')
 
+		it 'should translate with parameters in place of count argument', ->
+			t = translator.translate('web.pages.homepage.promo.advanced', {one: '1', two: 2})
+			t.should.be.equal('1 2')
+
 	describe '#translatePairs()', ->
 		it 'should throw an error if message to translate are not arrays', ->
 			( -> translator.translatePairs('web.pages.homepage.promo', 'title', 'list') ).should.throw()
@@ -193,7 +197,7 @@ describe 'Translator', ->
 		afterEach( ->
 			cachePath = path.resolve('./cache/__translator.json')
 			dicPath = path.resolve('./data/web/pages/homepage/en.cached.json')
-			fs.unlinkSync(cachePath)
+			fs.unlinkSync(cachePath) if fs.existsSync(cachePath)
 			fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "1"}')
 		)
 

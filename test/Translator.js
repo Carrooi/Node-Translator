@@ -137,13 +137,21 @@
       it('should return translation of list for plural form', function() {
         return translator.translate('web.pages.homepage.promo.fruits', 3).should.be.eql(['3 bananas', '3 citrons', '3 oranges']);
       });
-      return it('should return translation with replacement in message', function() {
+      it('should return translation with replacement in message', function() {
         translator.addReplacement('one', 1);
         translator.addReplacement('dictionary', 'promo');
         return translator.translate('web.pages.homepage.%dictionary%.%name%', null, {
           two: 2,
           name: 'advanced'
         }).should.be.equal('1 2');
+      });
+      return it('should translate with parameters in place of count argument', function() {
+        var t;
+        t = translator.translate('web.pages.homepage.promo.advanced', {
+          one: '1',
+          two: 2
+        });
+        return t.should.be.equal('1 2');
       });
     });
     describe('#translatePairs()', function() {
@@ -189,7 +197,9 @@
         var cachePath, dicPath;
         cachePath = path.resolve('./cache/__translator.json');
         dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
-        fs.unlinkSync(cachePath);
+        if (fs.existsSync(cachePath)) {
+          fs.unlinkSync(cachePath);
+        }
         return fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "1"}');
       });
       return describe('#translate()', function() {

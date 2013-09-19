@@ -139,6 +139,10 @@ class Translator
 
 		if typeof message != 'string' then return message
 
+		if Object.prototype.toString.call(count) == '[object Object]'
+			args = count
+			count = null
+
 		if count != null then args.count = count
 
 		if (match = message.match(/^\:(.*)\:$/)) != null
