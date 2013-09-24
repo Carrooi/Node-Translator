@@ -24,7 +24,7 @@
 		"cache-storage": "latest"
 	},
 	"devDependencies": {
-		"should": "1.2.2"
+		"chai": "latest"
 	},
 	"scripts": {
 		"test": "cd ./test; mocha ./index.js --reporter spec;"

@@ -230,7 +230,6 @@
           });
           translator.translate('web.pages.homepage.simple.title');
           fs.writeFileSync(dictionary, data);
-          translator.cache.invalidate();
           return should.not.exists(translator.cache.load('en:web/pages/homepage/simple'));
         });
         it('should load data from dictionary with version', function() {
@@ -241,7 +240,6 @@
           translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
           dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
           fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "2"}');
-          translator.invalidate();
           return translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
         });
         return it('should change data in dictionary with version and load it', function() {
@@ -249,7 +247,6 @@
           translator.translate('web.pages.homepage.cached.variable').should.be.equal('1');
           dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
           fs.writeFileSync(dicPath, '{"# version #": 2, "variable": "2"}');
-          translator.invalidate();
           name = require.resolve('./data/web/pages/homepage/en.cached');
           delete require.cache[name];
           return translator.translate('web.pages.homepage.cached.variable').should.be.equal('2');

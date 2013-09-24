@@ -222,7 +222,6 @@ describe 'Translator', ->
 				data = fs.readFileSync(dictionary, encoding: 'utf-8')
 				translator.translate('web.pages.homepage.simple.title')
 				fs.writeFileSync(dictionary, data)
-				translator.cache.invalidate()
 				should.not.exists(translator.cache.load('en:web/pages/homepage/simple'))
 
 			it 'should load data from dictionary with version', ->
@@ -232,14 +231,12 @@ describe 'Translator', ->
 				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
 				dicPath = path.resolve('./data/web/pages/homepage/en.cached.json')
 				fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "2"}')
-				translator.invalidate()
 				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
 
 			it 'should change data in dictionary with version and load it', ->
 				translator.translate('web.pages.homepage.cached.variable').should.be.equal('1')
 				dicPath = path.resolve('./data/web/pages/homepage/en.cached.json')
 				fs.writeFileSync(dicPath, '{"# version #": 2, "variable": "2"}')
-				translator.invalidate()
 				name = require.resolve('./data/web/pages/homepage/en.cached')
 				delete require.cache[name]
 				translator.translate('web.pages.homepage.cached.variable').should.be.equal('2')
