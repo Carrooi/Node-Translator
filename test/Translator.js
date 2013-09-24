@@ -145,13 +145,28 @@
           name: 'advanced'
         }).should.be.equal('1 2');
       });
-      return it('should translate with parameters in place of count argument', function() {
+      it('should translate with parameters in place of count argument', function() {
         var t;
         t = translator.translate('web.pages.homepage.promo.advanced', {
           one: '1',
           two: 2
         });
         return t.should.be.equal('1 2');
+      });
+      it('should translate one item from list in translate method', function() {
+        translator.translate('web.pages.homepage.promo.newList[0]').should.be.equal('first');
+        translator.translate('web.pages.homepage.promo.newList[1]').should.be.equal('second');
+        return translator.translate('web.pages.homepage.promo.newList[2]').should.be.equal('third');
+      });
+      it('should throw an error when translating one item from non-list', function() {
+        return (function() {
+          return translator.translate('web.pages.homepage.promo.title[5]');
+        }).should["throw"]();
+      });
+      return it('should throw an error when translating one item which does not exists', function() {
+        return (function() {
+          return translator.translate('web.pages.homepage.promo.newList[5]');
+        }).should["throw"]();
       });
     });
     describe('#translatePairs()', function() {

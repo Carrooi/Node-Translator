@@ -243,6 +243,12 @@ Usage:
 var messages = translator.translate('dictionary.fruits', 6);		// output: [ 6 oranges, 6 bananas ]
 ```
 
+### Accessing exact item
+
+```
+var message = translator.translate('dictionary.someList[0]');		// output: 1st item
+```
+
 ### Shorter syntax
 
 If your list contains just singular forms translations, you can use shorter syntax for it.
@@ -352,6 +358,9 @@ Dictionary:
 Every time you update this dictionary file, please increase this version number to reload data in cache.
 
 ## Changelog
+
+* 1.5.0
+	+ Accessing items from lists in translate method
 
 * 1.4.4
 	+ Translate method: can pass args as second argument

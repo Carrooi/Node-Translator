@@ -148,8 +148,22 @@ class Translator
 		if (match = message.match(/^\:(.*)\:$/)) != null
 			message = match[1]
 		else
+			num = null
+			if (match = message.match(/(.+)\[(\d+)\]$/)) != null
+				message = match[1]
+				num = parseInt(match[2])
+
 			message = @applyReplacements(message, args)
 			translation = @findTranslation(message)
+
+			if num != null
+				if !@isList(translation)
+					throw new Error 'Translation ' + message + ' is not a list.'
+
+				if typeof translation[num] == 'undefined'
+					throw new Error 'Item ' + num + ' was not found in ' + message + ' translation.'
+
+				translation = translation[num]
 
 			if translation != null
 				message = @pluralize(message, translation, count)
@@ -177,6 +191,10 @@ class Translator
 			result[k] = value[i]
 
 		return result
+
+
+	isList: (translation) ->
+		return Object.prototype.toString.call(translation[0]) == '[object Array]'
 
 
 	pluralize: (message, translation, count = null) ->

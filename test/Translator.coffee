@@ -163,6 +163,17 @@ describe 'Translator', ->
 			t = translator.translate('web.pages.homepage.promo.advanced', {one: '1', two: 2})
 			t.should.be.equal('1 2')
 
+		it 'should translate one item from list in translate method', ->
+			translator.translate('web.pages.homepage.promo.newList[0]').should.be.equal('first')
+			translator.translate('web.pages.homepage.promo.newList[1]').should.be.equal('second')
+			translator.translate('web.pages.homepage.promo.newList[2]').should.be.equal('third')
+
+		it 'should throw an error when translating one item from non-list', ->
+			( -> translator.translate('web.pages.homepage.promo.title[5]') ).should.throw()
+
+		it 'should throw an error when translating one item which does not exists', ->
+			( -> translator.translate('web.pages.homepage.promo.newList[5]') ).should.throw()
+
 	describe '#translatePairs()', ->
 		it 'should throw an error if message to translate are not arrays', ->
 			( -> translator.translatePairs('web.pages.homepage.promo', 'title', 'list') ).should.throw()
