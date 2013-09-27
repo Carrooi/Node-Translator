@@ -359,6 +359,9 @@ Every time you update this dictionary file, please increase this version number 
 
 ## Changelog
 
+* 1.6.0
+	+ Refactoring tests
+
 * 1.5.0
 	+ Accessing items from lists in translate method
 	+ Using chai instead of should for tests
