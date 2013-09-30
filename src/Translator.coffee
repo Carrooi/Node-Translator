@@ -201,7 +201,7 @@ class Translator
 		if type not in ['[object Array]', '[object Object]']
 			throw new Error 'Translate map is only for arrays and objects.'
 
-		params = Args(arguments, [Args.any, Args.number(null), Args.object({}), Args.string(null)])
+		params = Args(arguments, [Args.oneOf([Args.array, Args.object]), Args.number(null), Args.object({}), Args.string(null)])
 		list = params[0]
 		count = params[1]
 		args = params[2]
