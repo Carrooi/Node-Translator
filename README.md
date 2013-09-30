@@ -403,6 +403,12 @@ Dictionary:
 
 Every time you update this dictionary file, please increase this version number to reload data in cache.
 
+## Tests
+
+```
+$ npm test
+```
+
 ## Changelog
 
 * 1.6.0
