@@ -1,7 +1,7 @@
 {
 	"name": "translator",
 	"description": "Translator for node and also for browser",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"author": {
 		"name": "David Kudera",
 		"email": "sakren@gmail.com"
@@ -21,10 +21,11 @@
 	},
 	"main": "./lib/Translator.js",
 	"dependencies": {
-		"cache-storage": "latest"
+		"cache-storage": "~1.3.0",
+		"normalize-arguments": "~1.0.1"
 	},
 	"devDependencies": {
-		"chai": "latest"
+		"chai": "~1.8.0"
 	},
 	"scripts": {
 		"test": "cd ./test; mocha ./index.js --reporter spec;"

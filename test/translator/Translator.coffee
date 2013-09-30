@@ -188,6 +188,47 @@ describe 'Translator', ->
 				'4th title': '4th text'
 			)
 
+	describe '#translateMap()', ->
+		it 'should throw an error if object is not array or object', ->
+			expect( -> translator.translateMap(new Date)).to.throw(Error)
+
+		it 'should translate array', ->
+			expect(translator.translateMap(['web.pages.homepage.promo.title', 'web.pages.homepage.promo.info'])).to.be.eql([
+				'Title of promo box'
+				'Some info text'
+			])
+
+		it 'should translate object', ->
+			t =
+				title: 'web.pages.homepage.promo.title'
+				info: 'web.pages.homepage.promo.info'
+			expect(translator.translateMap(t)).to.be.eql(
+				title: 'Title of promo box'
+				info: 'Some info text'
+			)
+
+		it 'should translate array with plural forms translations', ->
+			expect(translator.translateMap(['web.pages.homepage.promo.cars', 'web.pages.homepage.promo.mobile'], 6)).to.be.eql([
+				'6 cars'
+				'6 mobiles'
+			])
+
+		it 'should translate array with arguments', ->
+			expect(translator.translateMap(['web.pages.homepage.promo.advanced'], {one: 1, two: 2})).to.be.eql(['1 2'])
+
+		it 'should translate array with base path', ->
+			expect(translator.translateMap(['title', 'info'], 'web.pages.homepage.promo')).to.be.eql([
+				'Title of promo box'
+				'Some info text'
+			])
+
+		it 'should translate array with list', ->
+			expect(translator.translateMap(['web.pages.homepage.promo.fruits'], 4)).to.be.eql([[
+				'4 bananas'
+				'4 citrons'
+				'4 oranges'
+			]])
+
 	describe '#setCacheStorage()', ->
 		it 'should throw an exception if storage is not the right type', ->
 			expect( -> translator.setCacheStorage(new Array) ).throw(Error)

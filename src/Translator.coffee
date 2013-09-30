@@ -1,6 +1,9 @@
-pluralForms = require './pluralForms'
 Cache = require 'cache-storage'
 Storage = require 'cache-storage/Storage/Storage'
+Args = require 'normalize-arguments'
+
+pluralForms = require './pluralForms'
+
 
 class Translator
 
@@ -33,7 +36,7 @@ class Translator
 
 	setCacheStorage: (cacheStorage) ->
 		if cacheStorage !instanceof Storage
-			throw new Error 'Cache storage must be an instance of cache-storage/Storage/Storage'
+			throw new Error 'Cache storage must be an instance of cache-storage/Storage/Storage.'
 
 		@cache = new Cache cacheStorage, 'translator'
 
@@ -52,7 +55,7 @@ class Translator
 
 	removeReplacement: (search) ->
 		if typeof @replacements[search] == 'undefined'
-			throw new Error 'Replacement ' + search + ' was not found'
+			throw new Error 'Replacement ' + search + ' was not found.'
 
 		delete @replacements[search]
 		return @
@@ -181,16 +184,40 @@ class Translator
 		value = @translate(value, count, args)
 
 		if Object.prototype.toString.call(key) != '[object Array]' || Object.prototype.toString.call(value) != '[object Array]'
-			throw new Error 'Translations are not arrays'
+			throw new Error 'Translations are not arrays.'
 
 		if key.length != value.length
-			throw new Error 'Keys and values translations have not got the same length'
+			throw new Error 'Keys and values translations have not got the same length.'
 
 		result = {}
 		for k, i in key
 			result[k] = value[i]
 
 		return result
+
+
+	translateMap: (list, count = null, args = {}, base = null) ->
+		type = Object.prototype.toString.call(list)
+		if type not in ['[object Array]', '[object Object]']
+			throw new Error 'Translate map is only for arrays and objects.'
+
+		params = Args(arguments, [Args.any, Args.number(null), Args.object({}), Args.string(null)])
+		list = params[0]
+		count = params[1]
+		args = params[2]
+		base = params[3]
+
+		base = if base != null then base + '.' else ''
+
+		if type == '[object Array]'
+			for m, i in list
+				list[i] = @translate(base + m, count, args)
+
+		else
+			for k, m of list
+				list[k] = @translate(base + m, count, args)
+
+		return list
 
 
 	isList: (translation) ->

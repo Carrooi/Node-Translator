@@ -188,6 +188,42 @@
         });
       });
     });
+    describe('#translateMap()', function() {
+      it('should throw an error if object is not array or object', function() {
+        return expect(function() {
+          return translator.translateMap(new Date);
+        }).to["throw"](Error);
+      });
+      it('should translate array', function() {
+        return expect(translator.translateMap(['web.pages.homepage.promo.title', 'web.pages.homepage.promo.info'])).to.be.eql(['Title of promo box', 'Some info text']);
+      });
+      it('should translate object', function() {
+        var t;
+        t = {
+          title: 'web.pages.homepage.promo.title',
+          info: 'web.pages.homepage.promo.info'
+        };
+        return expect(translator.translateMap(t)).to.be.eql({
+          title: 'Title of promo box',
+          info: 'Some info text'
+        });
+      });
+      it('should translate array with plural forms translations', function() {
+        return expect(translator.translateMap(['web.pages.homepage.promo.cars', 'web.pages.homepage.promo.mobile'], 6)).to.be.eql(['6 cars', '6 mobiles']);
+      });
+      it('should translate array with arguments', function() {
+        return expect(translator.translateMap(['web.pages.homepage.promo.advanced'], {
+          one: 1,
+          two: 2
+        })).to.be.eql(['1 2']);
+      });
+      it('should translate array with base path', function() {
+        return expect(translator.translateMap(['title', 'info'], 'web.pages.homepage.promo')).to.be.eql(['Title of promo box', 'Some info text']);
+      });
+      return it('should translate array with list', function() {
+        return expect(translator.translateMap(['web.pages.homepage.promo.fruits'], 4)).to.be.eql([['4 bananas', '4 citrons', '4 oranges']]);
+      });
+    });
     return describe('#setCacheStorage()', function() {
       it('should throw an exception if storage is not the right type', function() {
         return expect(function() {

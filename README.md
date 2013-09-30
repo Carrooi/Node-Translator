@@ -298,6 +298,52 @@ Output:
 }
 ```
 
+## Translate whole array or object
+
+When you have got some array, which you need to translate, you don't have to iterate through it yourself.
+
+```
+var messages = [
+	'homepage.promo.box.title',
+	'homepage.promo.box.description',
+	'homepage.promo.box.text'
+];
+
+var result = translator.translateMap(messages);
+```
+
+This can be also used for literal objects.
+
+If your array to translate contains translations just from one dictionary, you can set some kind of base path.
+
+```
+var messages = [
+	'title',
+	'description',
+	'text'
+];
+
+var result = translator.translateMap(messages, 'homepage.promo.box.title');
+```
+
+Or use count for translations with plural forms.
+
+```
+var result = translator.translateMap(messages, 6);
+```
+
+Or with some replacements.
+
+```
+var result = translator.translateMap(messages, {type: 'book'});
+```
+
+Of course you can pass any argument you need, you only have to keep the right order of arguments (uses [normalize-arguments](https://npmjs.org/package/normalize-arguments)):
+
+```
+translator.translateMap(arrayOrObjectToTranslate, countForPluralForms, objectWithReplacements, basePathString);
+```
+
 ## Comments in dictionaries
 
 You can write some comments into your dictionaries. These comments has to be enclosed into `#`.
@@ -361,6 +407,8 @@ Every time you update this dictionary file, please increase this version number 
 
 * 1.6.0
 	+ Refactoring tests
+	+ Optimized dependencies
+	+ Added method translateMap
 
 * 1.5.0
 	+ Accessing items from lists in translate method
