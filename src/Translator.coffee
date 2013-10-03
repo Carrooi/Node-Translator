@@ -140,11 +140,12 @@ class Translator
 		if @language == null
 			throw new Error 'You have to set language'
 
-		if typeof message != 'string' then return message
+		params = Args(arguments, [Args.any, Args.number(null), Args.object({})])
+		message = params[0]
+		count = params[1]
+		args = params[2]
 
-		if Object.prototype.toString.call(count) == '[object Object]'
-			args = count
-			count = null
+		if typeof message != 'string' then return message
 
 		if count != null then args.count = count
 

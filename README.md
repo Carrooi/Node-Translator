@@ -411,6 +411,9 @@ $ npm test
 
 ## Changelog
 
+* 1.7.0
+	+ Uses [normalize-arguments](https://npmjs.org/package/normalize-arguments) for translate method
+
 * 1.6.0
 	+ Refactoring tests
 	+ Optimized dependencies
