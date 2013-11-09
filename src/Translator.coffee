@@ -82,16 +82,14 @@ class Translator
 				data = @loadFromFile(path)
 				data = @normalizeTranslations(data)
 				conds = {}
-				if typeof data['# version #'] == 'undefined' && typeof window == 'undefined'
+				if typeof window == 'undefined'
 					conds.files = [path + '.json']
 
 				@cache.save(@language + ':' + categoryName, data, conds)
 
-			else if typeof data['# version #'] != 'undefined'
+			else
 				file = @loadFromFile(path)
-				if typeof file['# version #'] == 'undefined' || data['# version #'] != file['# version #']
-					data = @normalizeTranslations(file)
-					@cache.save(@language + ':' + categoryName, data)
+				data = @normalizeTranslations(file)
 
 			return data
 
@@ -109,9 +107,7 @@ class Translator
 				name = match[1]
 				list = true
 
-			if name == '# version #'
-				result[name] = translation
-			else if typeof translation == 'string'
+			if typeof translation == 'string'
 				result[name] = [translation]
 			else if Object.prototype.toString.call(translation) == '[object Array]'
 				result[name] = []

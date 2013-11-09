@@ -388,20 +388,7 @@ var FileStorage = require('cache-storage/Storage/FileStorage');
 translator.setCacheStorage(new FileStorage('./path/to/cache/directory'));
 ```
 
-### Caching in browser
-
-[Cache-storage](https://npmjs.org/package/cache-storage) can not know if you update some dictionary file in browser. You
-just have to set some kind of version in each dictionary.
-
-Dictionary:
-```
-{
-	"# version #": 125,
-	"title": "this is some title"
-}
-```
-
-Every time you update this dictionary file, please increase this version number to reload data in cache.
+Unfortunately now there is no way to use caching in browser.
 
 ## Tests
 
@@ -410,6 +397,9 @@ $ npm test
 ```
 
 ## Changelog
+
+* 1.7.0
+	+ Removed version tag from dictionaries (bc break)
 
 * 1.6.1
 	+ Uses [normalize-arguments](https://npmjs.org/package/normalize-arguments) for translate method

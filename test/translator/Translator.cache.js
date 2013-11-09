@@ -45,7 +45,7 @@
         expect(t).to.be.an('object');
         return expect(t).to.include.keys('title');
       });
-      it('should invalidate cache for dictionary after it is changed', function() {
+      return it('should invalidate cache for dictionary after it is changed', function() {
         var data, dictionary;
         dictionary = dir + '/web/pages/homepage/en.simple.json';
         data = fs.readFileSync(dictionary, {
@@ -54,27 +54,6 @@
         translator.translate('web.pages.homepage.simple.title');
         fs.writeFileSync(dictionary, data);
         return expect(translator.cache.load('en:web/pages/homepage/simple')).to.be["null"];
-      });
-      it('should load data from dictionary with version', function() {
-        return expect(translator.translate('web.pages.homepage.cached.variable')).to.be.equal('1');
-      });
-      it('should change data in dictionary with version, but load the old one', function() {
-        var dicPath;
-        expect(translator.translate('web.pages.homepage.cached.variable')).to.be.equal('1');
-        dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
-        fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "2"}');
-        translator.invalidate();
-        return expect(translator.translate('web.pages.homepage.cached.variable')).to.be.equal('1');
-      });
-      return it('should change data in dictionary with version and load it', function() {
-        var dicPath, name;
-        expect(translator.translate('web.pages.homepage.cached.variable')).to.be.equal('1');
-        dicPath = path.resolve('./data/web/pages/homepage/en.cached.json');
-        fs.writeFileSync(dicPath, '{"# version #": 2, "variable": "2"}');
-        name = require.resolve(dir + '/web/pages/homepage/en.cached');
-        delete require.cache[name];
-        translator.invalidate();
-        return expect(translator.translate('web.pages.homepage.cached.variable')).to.be.equal('2');
       });
     });
   });
