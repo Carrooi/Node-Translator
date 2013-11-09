@@ -3307,7 +3307,7 @@
 	          data = this.loadFromFile(path);
 	          data = this.normalizeTranslations(data);
 	          conds = {};
-	          if (typeof window === 'undefined') {
+	          if (typeof window === 'undefined' || (typeof window !== 'undefined' && window.require.simq === true && typeof window.require.version !== 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)) {
 	            conds.files = [path + '.json'];
 	          }
 	          this.cache.save(this.language + ':' + categoryName, data, conds);
@@ -3773,5 +3773,5 @@
 , 'normalize-arguments': function(exports, module) { module.exports = window.require('normalize-arguments/lib/Args.js'); }
 
 });
-require.version = '5.1.1';
-delete require.__setStats;
+require.__setStats({"cache-storage/lib/Cache.js":{"atime":1383998072000,"mtime":1379614776000,"ctime":1382534480000},"cache-storage/lib/Storage/Storage.js":{"atime":1383998072000,"mtime":1379616343000,"ctime":1382534480000},"moment/moment.js":{"atime":1383998072000,"mtime":1381286265000,"ctime":1382534482000},"cache-storage/Storage/Storage.js":{"atime":1383998072000,"mtime":1379504002000,"ctime":1382534480000},"normalize-arguments/lib/Args.js":{"atime":1383998072000,"mtime":1380534728000,"ctime":1382534480000},"/lib/pluralForms.json":{"atime":1383998072000,"mtime":1382534450000,"ctime":1382534450000},"/lib/Translator.js":{"atime":1384027790000,"mtime":1384027785000,"ctime":1384027785000},"/test/browser/tests/Translator.coffee":{"atime":1383999593000,"mtime":1383999340000,"ctime":1383999340000},"/package.json":{"atime":1383999590000,"mtime":1383999547000,"ctime":1383999547000},"cache-storage/package.json":{"atime":1383998072000,"mtime":1382534480000,"ctime":1382534480000},"normalize-arguments/package.json":{"atime":1383998072000,"mtime":1382534480000,"ctime":1382534480000}});
+require.version = '5.1.2';

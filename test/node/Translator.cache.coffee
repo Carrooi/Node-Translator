@@ -26,7 +26,7 @@ describe 'Translator.cache', ->
 		cachePath = cache + '/__translator.json'
 		dicPath = dir + '/web/pages/homepage/en.cached.json'
 		fs.unlinkSync(cachePath) if fs.existsSync(cachePath)
-		fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "1"}')
+		fs.writeFileSync(dicPath, '{"variable": "1"}')
 	)
 
 	describe '#translate()', ->
