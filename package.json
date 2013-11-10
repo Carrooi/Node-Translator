@@ -29,6 +29,6 @@
 		"mocha": "~1.14.0"
 	},
 	"scripts": {
-		"test": "cd ./test; mocha ./node/index.js --reporter spec; cd ./browser; simq build;"
+		"test": "cd ./test; mocha ./node/index.js --reporter spec;"
 	}
 }
