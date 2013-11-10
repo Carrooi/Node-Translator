@@ -13,9 +13,8 @@ translator = null
 describe 'Translator', ->
 
 	beforeEach( ->
-		translator = new Translator
+		translator = new Translator(dir)
 		translator.language = 'en'
-		translator.directory = dir
 	)
 
 	afterEach( ->

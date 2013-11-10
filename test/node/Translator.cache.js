@@ -22,9 +22,8 @@
 
   describe('Translator.cache', function() {
     beforeEach(function() {
-      translator = new Translator;
+      translator = new Translator(dir);
       translator.language = 'en';
-      translator.directory = dir;
       return translator.setCacheStorage(new FileStorage(cache));
     });
     afterEach(function() {
@@ -35,7 +34,7 @@
       if (fs.existsSync(cachePath)) {
         fs.unlinkSync(cachePath);
       }
-      return fs.writeFileSync(dicPath, '{"# version #": 1, "variable": "1"}');
+      return fs.writeFileSync(dicPath, '{"variable": "1"}');
     });
     return describe('#translate()', function() {
       it('should load translation from cache', function() {

@@ -403,7 +403,9 @@ they are disabled. If you want to run them, you have to open `./test/browser/ind
 
 * 1.7.0
 	+ Removed version tag from dictionaries (bc break)
+	+ Better caching with [simq]() in browser
 	+ Added tests for browser
+	+ Many optimizations
 
 * 1.6.1
 	+ Uses [normalize-arguments](https://npmjs.org/package/normalize-arguments) for translate method

@@ -3,12 +3,16 @@ Storage = require 'cache-storage/Storage/Storage'
 Args = require 'normalize-arguments'
 
 pluralForms = require './pluralForms'
+Loader = require './Loaders/Loader'
+JsonLoader = require './Loaders/Json'
 
 
 class Translator
 
 
 	directory: '/app/lang'
+
+	loader: null
 
 	language: null
 
@@ -21,13 +25,28 @@ class Translator
 	cache: null
 
 
-	constructor: (@directory = @directory) ->
+	constructor: (directoryOrLoader) ->
 		@plurals = {}
 		@replacements = {}
 		@data = {}
 
+		if !directoryOrLoader
+			throw new Error 'You have to set path to base directory or loader.'
+
+		if typeof directoryOrLoader == 'string'
+			directoryOrLoader = new JsonLoader(directoryOrLoader)
+
+		@setLoader(directoryOrLoader)
+
 		for language, data of pluralForms
 			@addPluralForm(language, data.count, data.form)
+
+
+	setLoader: (loader) ->
+		if loader !instanceof Loader
+			throw new Error 'Loader must be an instance of translator/Loaders/Loader.'
+
+		@loader = loader
 
 
 	invalidate: ->
@@ -35,7 +54,7 @@ class Translator
 
 
 	setCacheStorage: (cacheStorage) ->
-		if cacheStorage !instanceof Storage
+		if !cacheStorage instanceof Storage
 			throw new Error 'Cache storage must be an instance of cache-storage/Storage/Storage.'
 
 		@cache = new Cache cacheStorage, 'translator'
@@ -64,40 +83,30 @@ class Translator
 	loadCategory: (path, name) ->
 		categoryName = path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
-			name = path + '/' + @language + '.' + name
-			filePath = @directory + '/' + name
-			@data[categoryName] = @load(filePath, categoryName)
+			if @cache == null
+				data = @loader.load(path, name, @language)
+				data = @normalizeTranslations(data)
+			else
+				data = @cache.load(@language + ':' + categoryName)
+
+				if data == null
+					data = @loader.load(path, name, @language)
+					data = @normalizeTranslations(data)
+
+					conds = {}
+					if typeof window == 'undefined' || (typeof window != 'undefined' && window.require.simq == true && typeof window.require.version != 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)
+						path = @loader.getFileSystemPath(path, name, @language)
+						conds.files = [path] if path != null
+
+					@cache.save(@language + ':' + categoryName, data, conds)
+
+				else
+					file = @loader.load(path, name, @language)
+					data = @normalizeTranslations(file)
+
+			@data[categoryName] = data
 
 		return @data[categoryName]
-
-
-	load: (path, categoryName) ->
-		if @cache == null
-			data = @loadFromFile(path)
-			return @normalizeTranslations(data)
-		else
-			data = @cache.load(@language + ':' + categoryName)
-
-			if data == null
-				data = @loadFromFile(path)
-				data = @normalizeTranslations(data)
-
-				conds = {}
-				if typeof window == 'undefined' || (typeof window != 'undefined' && window.require.simq == true && typeof window.require.version != 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)
-					conds.files = [path + '.json']
-
-				@cache.save(@language + ':' + categoryName, data, conds)
-
-			else
-				file = @loadFromFile(path)
-				data = @normalizeTranslations(file)
-
-			return data
-
-
-	loadFromFile: (path) ->
-		try data = require(path) catch e then data = {}
-		return data
 
 
 	normalizeTranslations: (translations) ->

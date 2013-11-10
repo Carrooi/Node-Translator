@@ -22,9 +22,8 @@
 
   describe('Translator', function() {
     beforeEach(function() {
-      translator = new Translator;
-      translator.language = 'en';
-      return translator.directory = dir;
+      translator = new Translator(dir);
+      return translator.language = 'en';
     });
     afterEach(function() {
       return translator = null;

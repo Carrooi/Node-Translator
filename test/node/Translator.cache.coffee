@@ -13,9 +13,8 @@ translator = null
 describe 'Translator.cache', ->
 
 	beforeEach( ->
-		translator = new Translator
+		translator = new Translator(dir)
 		translator.language = 'en'
-		translator.directory = dir
 
 		translator.setCacheStorage(new FileStorage(cache))
 	)
