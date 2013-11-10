@@ -403,7 +403,7 @@ they are disabled. If you want to run them, you have to open `./test/browser/ind
 
 * 1.7.0
 	+ Removed version tag from dictionaries (bc break)
-	+ Better caching with [simq]() in browser
+	+ Better caching with [simq](https://npmjs.org/package/simq) in browser
 	+ Added tests for browser
 	+ Many optimizations
 
