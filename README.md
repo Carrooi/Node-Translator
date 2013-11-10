@@ -396,10 +396,14 @@ Unfortunately now there is no way to use caching in browser.
 $ npm test
 ```
 
+There are also tests for browser, but because of this strange [bug](https://github.com/metaskills/mocha-phantomjs/issues/105)
+they are disabled. If you want to run them, you have to open `./test/browser/index.html` file in your browser.
+
 ## Changelog
 
 * 1.7.0
 	+ Removed version tag from dictionaries (bc break)
+	+ Added tests for browser
 
 * 1.6.1
 	+ Uses [normalize-arguments](https://npmjs.org/package/normalize-arguments) for translate method

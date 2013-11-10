@@ -5,7 +5,15 @@
 			"application": "./test/browser/application.js",
 			"modules": [
 				"./lib/*.js",
-				"./test/browser/tests/*.coffee"
+				"./test/browser/tests/*.coffee",
+				"./test/data/*.json",
+				"cache-storage/lib/*.js",
+				"cache-storage/Storage/*.js",
+				"./test/browser/test.js"
+			],
+			"run": [
+				"/test/browser/tests/Translator",
+				"/test/browser/test.js"
 			]
 		}
 	}
