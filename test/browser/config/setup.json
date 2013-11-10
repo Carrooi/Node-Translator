@@ -8,8 +8,7 @@
 				"./test/browser/tests/*.coffee",
 				"./test/data/*.json",
 				"cache-storage/lib/*.js",
-				"cache-storage/Storage/*.js",
-				"./test/browser/test.js"
+				"cache-storage/Storage/*.js"
 			],
 			"run": [
 				"/test/browser/tests/Translator",

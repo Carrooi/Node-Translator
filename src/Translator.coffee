@@ -81,6 +81,7 @@ class Translator
 			if data == null
 				data = @loadFromFile(path)
 				data = @normalizeTranslations(data)
+
 				conds = {}
 				if typeof window == 'undefined' || (typeof window != 'undefined' && window.require.simq == true && typeof window.require.version != 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)
 					conds.files = [path + '.json']
