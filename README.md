@@ -403,6 +403,7 @@ they will fail. If you want to run them, you have to open `./test/browser/index.
 
 * 1.7.1
 	+ Tests were broken
+	+ Updated modules
 
 * 1.7.0
 	+ Removed version tag from dictionaries (bc break)
