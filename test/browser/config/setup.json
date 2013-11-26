@@ -11,8 +11,7 @@
 				"cache-storage/Storage/*.js"
 			],
 			"run": [
-				"/test/browser/tests/Translator",
-				"/test/browser/test.js"
+				"/test/browser/tests/Translator"
 			]
 		}
 	}

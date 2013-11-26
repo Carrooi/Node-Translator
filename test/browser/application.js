@@ -28,7 +28,7 @@
           parent: null,
           children: null
         };
-        modules[fullName].apply(modules[fullName], [m.exports, m]);
+        modules[fullName].apply(window, [m.exports, m]);
         m.loaded = true;
         cache[fullName] = m;
       }
@@ -548,7 +548,7 @@
 
 	/** code **/
 	//! moment.js
-	//! version : 2.3.1
+	//! version : 2.4.0
 	//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 	//! license : MIT
 	//! momentjs.com
@@ -560,7 +560,7 @@
 	    ************************************/
 	
 	    var moment,
-	        VERSION = "2.3.1",
+	        VERSION = "2.4.0",
 	        round = Math.round,
 	        i,
 	
@@ -587,7 +587,7 @@
 	        isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
 	
 	        // format tokens
-	        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|SS?S?|X|zz?|ZZ?|.)/g,
+	        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|X|zz?|ZZ?|.)/g,
 	        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LT|LL?L?L?|l{1,4})/g,
 	
 	        // parsing token regexes
@@ -596,6 +596,7 @@
 	        parseTokenThreeDigits = /\d{3}/, // 000 - 999
 	        parseTokenFourDigits = /\d{1,4}/, // 0 - 9999
 	        parseTokenSixDigits = /[+\-]?\d{1,6}/, // -999,999 - 999,999
+	        parseTokenDigits = /\d+/, // nonzero number of digits
 	        parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i, // any word (or two) characters or numbers including two/three word month in arabic.
 	        parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/i, // +00:00 -00:00 +0000 -0000 or Z
 	        parseTokenT = /T/i, // T (ISO seperator)
@@ -603,7 +604,7 @@
 	
 	        // preliminary iso regex
 	        // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000)
-	        isoRegex = /^\s*\d{4}-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d\d?\d?)?)?)?)?([\+\-]\d\d:?\d\d)?)?$/,
+	        isoRegex = /^\s*\d{4}-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d:?\d\d|Z)?)?$/,
 	
 	        isoFormat = 'YYYY-MM-DDTHH:mm:ssZ',
 	
@@ -616,7 +617,7 @@
 	
 	        // iso time formats and regexes
 	        isoTimes = [
-	            ['HH:mm:ss.S', /(T| )\d\d:\d\d:\d\d\.\d{1,3}/],
+	            ['HH:mm:ss.SSSS', /(T| )\d\d:\d\d:\d\d\.\d{1,3}/],
 	            ['HH:mm:ss', /(T| )\d\d:\d\d:\d\d/],
 	            ['HH:mm', /(T| )\d\d:\d\d/],
 	            ['HH', /(T| )\d\d/]
@@ -762,6 +763,9 @@
 	                return leftZeroFill(toInt(this.milliseconds() / 10), 2);
 	            },
 	            SSS  : function () {
+	                return leftZeroFill(this.milliseconds(), 3);
+	            },
+	            SSSS : function () {
 	                return leftZeroFill(this.milliseconds(), 3);
 	            },
 	            Z    : function () {
@@ -945,7 +949,8 @@
 	    }
 	
 	    function isDate(input) {
-	        return Object.prototype.toString.call(input) === '[object Date]';
+	        return  Object.prototype.toString.call(input) === '[object Date]' ||
+	                input instanceof Date;
 	    }
 	
 	    // compare two arrays, return the number of differences
@@ -1088,7 +1093,8 @@
 	            nullInput : false,
 	            invalidMonth : null,
 	            invalidFormat : false,
-	            userInvalidated : false
+	            userInvalidated : false,
+	            iso: false
 	        };
 	    }
 	
@@ -1479,6 +1485,8 @@
 	            return parseTokenTimezone;
 	        case 'T':
 	            return parseTokenT;
+	        case 'SSSS':
+	            return parseTokenDigits;
 	        case 'MM':
 	        case 'DD':
 	        case 'YY':
@@ -1587,6 +1595,7 @@
 	        case 'S' :
 	        case 'SS' :
 	        case 'SSS' :
+	        case 'SSSS' :
 	            datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
 	            break;
 	        // UNIX TIMESTAMP WITH MS
@@ -1859,6 +1868,7 @@
 	            match = isoRegex.exec(string);
 	
 	        if (match) {
+	            config._pf.iso = true;
 	            for (i = 4; i > 0; i--) {
 	                if (match[i]) {
 	                    // match[5] should be "T" or undefined
@@ -1873,7 +1883,7 @@
 	                }
 	            }
 	            if (parseTokenTimezone.exec(string)) {
-	                config._f += " Z";
+	                config._f += "Z";
 	            }
 	            makeDateFromStringAndFormat(config);
 	        }
@@ -2039,7 +2049,6 @@
 	        if (typeof input === 'string') {
 	            config._i = input = getLangDefinition().preparse(input);
 	        }
-	
 	
 	        if (moment.isMoment(input)) {
 	            config = extend({}, input);
@@ -2810,12 +2819,27 @@
 	        Exposing Moment
 	    ************************************/
 	
-	    function makeGlobal() {
+	    function makeGlobal(deprecate) {
+	        var warned = false, local_moment = moment;
 	        /*global ender:false */
-	        if (typeof ender === 'undefined') {
-	            // here, `this` means `window` in the browser, or `global` on the server
-	            // add `moment` as a global object via a string identifier,
-	            // for Closure Compiler "advanced" mode
+	        if (typeof ender !== 'undefined') {
+	            return;
+	        }
+	        // here, `this` means `window` in the browser, or `global` on the server
+	        // add `moment` as a global object via a string identifier,
+	        // for Closure Compiler "advanced" mode
+	        if (deprecate) {
+	            this.moment = function () {
+	                if (!warned && console && console.warn) {
+	                    warned = true;
+	                    console.warn(
+	                            "Accessing Moment through the global scope is " +
+	                            "deprecated, and will be removed in an upcoming " +
+	                            "release.");
+	                }
+	                return local_moment.apply(null, arguments);
+	            };
+	        } else {
 	            this['moment'] = moment;
 	        }
 	    }
@@ -2823,11 +2847,12 @@
 	    // CommonJS module is defined
 	    if (hasModule) {
 	        module.exports = moment;
-	        makeGlobal();
+	        makeGlobal(true);
 	    } else if (typeof define === "function" && define.amd) {
 	        define("moment", function (require, exports, module) {
 	            if (module.config().noGlobal !== true) {
-	                makeGlobal();
+	                // If user provided noGlobal, he is aware of global
+	                makeGlobal(module.config().noGlobal === undefined);
 	            }
 	
 	            return moment;
@@ -4472,7 +4497,7 @@
 			"mocha": "~1.14.0"
 		},
 		"scripts": {
-			"test": "cd ./test; mocha ./node/index.js --reporter spec; cd ./browser; simq build;"
+			"test": "cd ./test; echo \"Testing in node:\"; mocha ./node/index.js --reporter spec; cd ./browser; echo \"Testing in browser:\"; simq build; mocha-phantomjs ./index.html"
 		}
 	}
 	}).call(this);
@@ -4529,6 +4554,7 @@
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-cache-storage/issues"
 	  },
+	  "homepage": "https://github.com/sakren/node-cache-storage",
 	  "_id": "cache-storage@1.3.0",
 	  "_from": "cache-storage@~1.3.0"
 	}
@@ -4581,6 +4607,7 @@
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-normalize-arguments/issues"
 	  },
+	  "homepage": "https://github.com/sakren/node-normalize-arguments",
 	  "_id": "normalize-arguments@1.1.1",
 	  "_from": "normalize-arguments@~1.1.1"
 	}
@@ -4593,13 +4620,10 @@
 , 'normalize-arguments': function(exports, module) { module.exports = window.require('normalize-arguments/lib/Args.js'); }
 
 });
-require.__setStats({"/lib/Loaders/Loader.js":{"atime":1384095693000,"mtime":1384095599000,"ctime":1384095599000},"cache-storage/lib/Cache.js":{"atime":1384089575000,"mtime":1379614776000,"ctime":1382534480000},"cache-storage/lib/Storage/Storage.js":{"atime":1384089575000,"mtime":1379616343000,"ctime":1382534480000},"moment/moment.js":{"atime":1384089575000,"mtime":1381286265000,"ctime":1382534482000},"cache-storage/Storage/Storage.js":{"atime":1384089575000,"mtime":1379504002000,"ctime":1382534480000},"normalize-arguments/lib/Args.js":{"atime":1384089575000,"mtime":1380534728000,"ctime":1382534480000},"/lib/pluralForms.json":{"atime":1384089575000,"mtime":1382534450000,"ctime":1382534450000},"/lib/Loaders/Json.js":{"atime":1384095693000,"mtime":1384095622000,"ctime":1384095622000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1384029013000,"mtime":1379616143000,"ctime":1382534480000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1384029013000,"mtime":1379611502000,"ctime":1382534480000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1384089575000,"mtime":1379616377000,"ctime":1382534480000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1384029013000,"mtime":1379615784000,"ctime":1382534480000},"/lib/Translator.js":{"atime":1384095972000,"mtime":1384095970000,"ctime":1384095970000},"/test/browser/tests/Translator.coffee":{"atime":1384095799000,"mtime":1384095780000,"ctime":1384095780000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1384095973000,"mtime":1384095972000,"ctime":1384095972000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1384089575000,"mtime":1382534450000,"ctime":1382534450000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1384095973000,"mtime":1384095972000,"ctime":1384095972000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1384029013000,"mtime":1374739611000,"ctime":1382534480000},"cache-storage/Storage/DevNullStorage.js":{"atime":1384029013000,"mtime":1379609845000,"ctime":1382534480000},"cache-storage/Storage/FileStorage.js":{"atime":1384089575000,"mtime":1374739611000,"ctime":1382534480000},"cache-storage/Storage/MemoryStorage.js":{"atime":1384029013000,"mtime":1379613654000,"ctime":1382534480000},"/package.json":{"atime":1384091927000,"mtime":1384091921000,"ctime":1384091921000},"cache-storage/package.json":{"atime":1384089575000,"mtime":1382534480000,"ctime":1382534480000},"normalize-arguments/package.json":{"atime":1384089575000,"mtime":1382534480000,"ctime":1382534480000}});
-require.version = '5.1.2';
+require.__setStats({"/lib/Loaders/Loader.js":{"atime":1385456419000,"mtime":1385456417000,"ctime":1385456417000},"cache-storage/lib/Cache.js":{"atime":1385455131000,"mtime":1379614776000,"ctime":1385455113000},"cache-storage/lib/Storage/Storage.js":{"atime":1385455131000,"mtime":1379616343000,"ctime":1385455113000},"moment/moment.js":{"atime":1385455131000,"mtime":1382840735000,"ctime":1385455115000},"cache-storage/Storage/Storage.js":{"atime":1385455131000,"mtime":1379504002000,"ctime":1385455113000},"normalize-arguments/lib/Args.js":{"atime":1385455131000,"mtime":1380534728000,"ctime":1385455113000},"/lib/pluralForms.json":{"atime":1385455131000,"mtime":1385455098000,"ctime":1385455098000},"/lib/Loaders/Json.js":{"atime":1385456419000,"mtime":1385456417000,"ctime":1385456417000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1385455163000,"mtime":1379616143000,"ctime":1385455113000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1385455163000,"mtime":1379611502000,"ctime":1385455113000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1385455163000,"mtime":1379616377000,"ctime":1385455113000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1385455163000,"mtime":1379615784000,"ctime":1385455113000},"/lib/Translator.js":{"atime":1385456419000,"mtime":1385456417000,"ctime":1385456417000},"/test/browser/tests/Translator.coffee":{"atime":1385456777000,"mtime":1385456766000,"ctime":1385456766000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1385456777000,"mtime":1385456775000,"ctime":1385456775000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1385455163000,"mtime":1385455098000,"ctime":1385455098000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1385456777000,"mtime":1385456775000,"ctime":1385456775000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1385455164000,"mtime":1374739611000,"ctime":1385455113000},"cache-storage/Storage/DevNullStorage.js":{"atime":1385455164000,"mtime":1379609845000,"ctime":1385455113000},"cache-storage/Storage/FileStorage.js":{"atime":1385455164000,"mtime":1374739611000,"ctime":1385455113000},"cache-storage/Storage/MemoryStorage.js":{"atime":1385455164000,"mtime":1379613654000,"ctime":1385455113000},"/package.json":{"atime":1385456395000,"mtime":1385456387000,"ctime":1385456387000},"cache-storage/package.json":{"atime":1385455131000,"mtime":1385455113000,"ctime":1385455113000},"normalize-arguments/package.json":{"atime":1385455131000,"mtime":1385455113000,"ctime":1385455113000}});
+require.version = '5.1.3';
 
 /** run section **/
 
 /** /test/browser/tests/Translator **/
 require('/test/browser/tests/Translator');
-
-/** /test/browser/test.js **/
-require('/test/browser/test.js');

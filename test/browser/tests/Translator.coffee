@@ -219,9 +219,9 @@ describe 'Translator', ->
 
 		it 'should translate array with list', ->
 			expect(translator.translateMap(['web.pages.homepage.promo.fruits'], 4)).to.be.eql([[
-			   '4 bananas'
-			   '4 citrons'
-			   '4 oranges'
+				'4 bananas'
+				'4 citrons'
+				'4 oranges'
 			]])
 
 	describe '#setCacheStorage()', ->
