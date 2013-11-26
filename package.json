@@ -22,7 +22,7 @@
 	"main": "./lib/Translator.js",
 	"dependencies": {
 		"cache-storage": "~1.4.1",
-		"normalize-arguments": "~1.1.1"
+		"normalize-arguments": "~1.1.2"
 	},
 	"devDependencies": {
 		"chai": "~1.8.0",
