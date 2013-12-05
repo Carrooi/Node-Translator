@@ -1,3 +1,6 @@
+[![NPM version](https://badge.fury.io/js/translator.png)](http://badge.fury.io/js/translator)
+[![Dependency Status](https://gemnasium.com/sakren/node-translator.png)](https://gemnasium.com/sakren/node-translator)
+
 # translator
 
 Node translator with plural forms support. Works also in browser (for example with [simq](https://npmjs.org/package/simq)).
@@ -406,6 +409,7 @@ they will fail. If you want to run them, you have to open `./test/browser/index.
 	+ Bug with dictionaries in root
 	+ Updated dependencies
 	+ Better tests
+	+ Added info badges
 
 * 1.7.1
 	+ Tests were broken
