@@ -1,6 +1,7 @@
 [![NPM version](https://badge.fury.io/js/translator.png)](http://badge.fury.io/js/translator)
 [![Dependency Status](https://gemnasium.com/sakren/node-translator.png)](https://gemnasium.com/sakren/node-translator)
 
+
 # translator
 
 Node translator with plural forms support. Works also in browser (for example with [simq](https://npmjs.org/package/simq)).
