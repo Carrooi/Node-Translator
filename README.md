@@ -1,6 +1,6 @@
 [![NPM version](https://badge.fury.io/js/translator.png)](http://badge.fury.io/js/translator)
 [![Dependency Status](https://gemnasium.com/sakren/node-translator.png)](https://gemnasium.com/sakren/node-translator)
-
+[![Build Status](https://travis-ci.org/sakren/node-translator.png?branch=master)](https://travis-ci.org/sakren/node-translator)
 
 # translator
 
