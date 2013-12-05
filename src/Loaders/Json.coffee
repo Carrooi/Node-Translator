@@ -16,7 +16,7 @@ class Json extends Loader
 
 
 	getFileSystemPath: (parent, name, language) ->
-		return "#{@directory}/#{parent}/#{language}.#{name}.json"
+		return @directory + (if parent != '' then '/' + parent else '') + "/#{language}.#{name}.json"
 
 
 module.exports = Json

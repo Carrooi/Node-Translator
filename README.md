@@ -401,6 +401,9 @@ they will fail. If you want to run them, you have to open `./test/browser/index.
 
 ## Changelog
 
+* 1.7.2
+	+ Bug with dictionaries in root
+
 * 1.7.1
 	+ Tests were broken
 	+ Updated modules

@@ -166,6 +166,9 @@ describe 'Translator', ->
 			expect(translator.translate('web.pages.homepage.promo.newList[1]')).to.be.equal('second')
 			expect(translator.translate('web.pages.homepage.promo.newList[2]')).to.be.equal('third')
 
+		it 'should translate text from root directory', ->
+			expect(translator.translate('first.test')).to.be.equal('hello')
+
 		it 'should throw an error when translating one item from non-list', ->
 			expect( -> translator.translate('web.pages.homepage.promo.title[5]') ).throw(Error)
 

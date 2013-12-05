@@ -3327,7 +3327,7 @@
 	    };
 	
 	    Json.prototype.getFileSystemPath = function(parent, name, language) {
-	      return "" + this.directory + "/" + parent + "/" + language + "." + name + ".json";
+	      return this.directory + (parent !== '' ? '/' + parent : '') + ("/" + language + "." + name + ".json");
 	    };
 	
 	    return Json;
@@ -4312,6 +4312,25 @@
 	}).call(this);
 	
 
+}, '/test/data/en.first.json': function(exports, module) {
+
+	/** node globals **/
+	var require = function(name) {return window.require(name, '/test/data/en.first.json');};
+	require.resolve = function(name, parent) {if (parent === null) {parent = '/test/data/en.first.json';} return window.require.resolve(name, parent);};
+	require.define = function(bundle) {window.require.define(bundle);};
+	require.cache = window.require.cache;
+	var __filename = '/test/data/en.first.json';
+	var __dirname = '/test/data';
+	var process = {cwd: function() {return '/';}, argv: ['node', '/test/data/en.first.json'], env: {}};
+
+	/** code **/
+	module.exports = (function() {
+	return {
+		"test": "hello"
+	}
+	}).call(this);
+	
+
 }, '/test/data/web/pages/homepage/en.cached.json': function(exports, module) {
 
 	/** node globals **/
@@ -4489,7 +4508,7 @@
 	return {
 		"name": "translator",
 		"description": "Translator for node and also for browser",
-		"version": "1.7.1",
+		"version": "1.7.2",
 		"author": {
 			"name": "David Kudera",
 			"email": "sakren@gmail.com"
@@ -4640,8 +4659,8 @@
 , 'normalize-arguments': function(exports, module) { module.exports = window.require('normalize-arguments/lib/Args.js'); }
 
 });
-require.__setStats({"/lib/Loaders/Loader.js":{"atime":1385456419000,"mtime":1385456417000,"ctime":1385456417000},"cache-storage/lib/Cache.js":{"atime":1385456973000,"mtime":1385454550000,"ctime":1385456967000},"cache-storage/lib/Storage/Storage.js":{"atime":1385456973000,"mtime":1385454510000,"ctime":1385456967000},"moment/moment.js":{"atime":1385456973000,"mtime":1382840735000,"ctime":1385456969000},"cache-storage/Storage/Storage.js":{"atime":1385456973000,"mtime":1385454380000,"ctime":1385456967000},"normalize-arguments/lib/Args.js":{"atime":1385458128000,"mtime":1385457831000,"ctime":1385458078000},"/lib/pluralForms.json":{"atime":1385455131000,"mtime":1385455098000,"ctime":1385455098000},"/lib/Loaders/Json.js":{"atime":1385456419000,"mtime":1385456417000,"ctime":1385456417000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1385456974000,"mtime":1385454510000,"ctime":1385456967000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1385456974000,"mtime":1385454510000,"ctime":1385456967000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1385456973000,"mtime":1385454510000,"ctime":1385456967000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1385456974000,"mtime":1385454510000,"ctime":1385456967000},"/lib/Translator.js":{"atime":1385456419000,"mtime":1385456417000,"ctime":1385456417000},"/test/browser/tests/Translator.coffee":{"atime":1385456777000,"mtime":1385456766000,"ctime":1385456766000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1385458129000,"mtime":1385458128000,"ctime":1385458128000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1385455163000,"mtime":1385455098000,"ctime":1385455098000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1385458129000,"mtime":1385458128000,"ctime":1385458128000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1385456974000,"mtime":1385454380000,"ctime":1385456967000},"cache-storage/Storage/DevNullStorage.js":{"atime":1385456974000,"mtime":1385454380000,"ctime":1385456967000},"cache-storage/Storage/FileStorage.js":{"atime":1385456973000,"mtime":1385454380000,"ctime":1385456967000},"cache-storage/Storage/MemoryStorage.js":{"atime":1385456974000,"mtime":1385454380000,"ctime":1385456967000},"/package.json":{"atime":1385457995000,"mtime":1385457995000,"ctime":1385457995000},"cache-storage/package.json":{"atime":1385456973000,"mtime":1385456967000,"ctime":1385456967000},"normalize-arguments/package.json":{"atime":1385458128000,"mtime":1385458078000,"ctime":1385458078000}});
-require.version = '5.1.3';
+require.__setStats({"/lib/Loaders/Loader.js":{"atime":1386237822000,"mtime":1386237810000,"ctime":1386237810000},"cache-storage/lib/Cache.js":{"atime":1386237822000,"mtime":1385454550000,"ctime":1385456967000},"cache-storage/lib/Storage/Storage.js":{"atime":1386237822000,"mtime":1385454510000,"ctime":1385456967000},"moment/moment.js":{"atime":1386237822000,"mtime":1382840735000,"ctime":1385456969000},"cache-storage/Storage/Storage.js":{"atime":1386237822000,"mtime":1385454380000,"ctime":1385456967000},"normalize-arguments/lib/Args.js":{"atime":1386237822000,"mtime":1385457831000,"ctime":1385458078000},"/lib/pluralForms.json":{"atime":1386237822000,"mtime":1385455098000,"ctime":1385455098000},"/lib/Loaders/Json.js":{"atime":1386237822000,"mtime":1386237810000,"ctime":1386237810000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1386237870000,"mtime":1385454510000,"ctime":1385456967000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1386237870000,"mtime":1385454510000,"ctime":1385456967000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1386237822000,"mtime":1385454510000,"ctime":1385456967000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1386237870000,"mtime":1385454510000,"ctime":1385456967000},"/lib/Translator.js":{"atime":1386237822000,"mtime":1386237810000,"ctime":1386237810000},"/test/browser/tests/Translator.coffee":{"atime":1386237822000,"mtime":1385456766000,"ctime":1385456766000},"/test/data/en.first.json":{"atime":1386237504000,"mtime":1385541672000,"ctime":1385541672000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1386237871000,"mtime":1386237869000,"ctime":1386237869000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1386237832000,"mtime":1385455098000,"ctime":1385455098000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1386237871000,"mtime":1386237869000,"ctime":1386237869000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1386237870000,"mtime":1385454380000,"ctime":1385456967000},"cache-storage/Storage/DevNullStorage.js":{"atime":1386237870000,"mtime":1385454380000,"ctime":1385456967000},"cache-storage/Storage/FileStorage.js":{"atime":1386237822000,"mtime":1385454380000,"ctime":1385456967000},"cache-storage/Storage/MemoryStorage.js":{"atime":1386237870000,"mtime":1385454380000,"ctime":1385456967000},"/package.json":{"atime":1386237869000,"mtime":1386237867000,"ctime":1386237867000},"cache-storage/package.json":{"atime":1386237822000,"mtime":1385456967000,"ctime":1385456967000},"normalize-arguments/package.json":{"atime":1386237822000,"mtime":1385458078000,"ctime":1385458078000}});
+require.version = '5.2.0';
 
 /** run section **/
 
