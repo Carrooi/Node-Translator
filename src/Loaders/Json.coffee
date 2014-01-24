@@ -1,5 +1,11 @@
 Loader = require './Loader'
 
+isWindow = typeof window != 'undefined'
+
+if !isWindow
+	callsite = require 'callsite'
+	path = require 'path'
+
 class Json extends Loader
 
 
@@ -7,6 +13,15 @@ class Json extends Loader
 
 
 	constructor: (@directory = @directory) ->
+		if @directory.charAt(0) == '.' && isWindow
+			throw new Error 'Relative paths to dictionaries is not supported in browser.'
+
+		if @directory.charAt(0) == '.'
+			stack = callsite()
+			directoryOrLoader = path.dirname(stack[1].getFileName())
+
+		if !isWindow
+			@directory = path.normalize(@directory)
 
 
 	load: (parent, name, language) ->

@@ -22,10 +22,16 @@ describe 'Translator', ->
 	)
 
 	describe '#constructor()', ->
+
 		it 'should contain some plural forms', ->
 			expect(translator.plurals).not.to.be.eql({})
 
+		it 'should create storage with relative path', ->
+			translator = new Translator('../data')
+			expect(translator.loader.directory).to.be.equal(dir)
+
 	describe '#normalizeTranslations()', ->
+
 		it 'should return normalized object with dictionary', ->
 			expect(translator.normalizeTranslations(
 				car: 'car'
@@ -85,6 +91,7 @@ describe 'Translator', ->
 			)
 
 	describe '#getMessageInfo()', ->
+
 		it 'should return information about dictionary from message to translate', ->
 			expect(translator.getMessageInfo('web.pages.homepage.promo.title')).to.be.eql(
 				path: 'web/pages/homepage'
@@ -93,6 +100,7 @@ describe 'Translator', ->
 			)
 
 	describe '#loadCategory()', ->
+
 		it 'should load parsed dictionary', ->
 			expect(translator.loadCategory('web/pages/homepage', 'simple')).to.be.eql(
 				title: ['Title of promo box']
@@ -102,6 +110,7 @@ describe 'Translator', ->
 			expect(translator.loadCategory('some/unknown', 'translation')).to.be.eql({})
 
 	describe '#findTranslation()', ->
+
 		it 'should return english translations from dictionary', ->
 			expect(translator.findTranslation('web.pages.homepage.promo.title')).to.be.eql(['Title of promo box'])
 
@@ -109,6 +118,7 @@ describe 'Translator', ->
 			expect(translator.findTranslation('some.unknown.translation')).to.be.null
 
 	describe '#pluralize()', ->
+
 		it 'should return right version of translation(s) by count', ->
 			cars = ['1 car', '%count% cars']
 			expect(translator.pluralize('car', cars, 1)).to.be.equal('1 car')
@@ -119,6 +129,7 @@ describe 'Translator', ->
 			expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% apples', '%count% oranges'])
 
 	describe '#prepareTranslation()', ->
+
 		it 'should return expanded translation with arguments', ->
 			translator.addReplacement('item', 'car')
 			expect(translator.prepareTranslation('%item% has got %count% %append%.',
@@ -127,6 +138,7 @@ describe 'Translator', ->
 			)).to.be.equal('car has got 5 things.')
 
 	describe '#applyReplacements()', ->
+
 		it 'should add replacements to text', ->
 			expect(translator.applyReplacements('%one% %two% %three%',
 				one: 1
@@ -135,6 +147,7 @@ describe 'Translator', ->
 			)).to.be.equal('1 2 3')
 
 	describe '#translate()', ->
+
 		it 'should return translated text from dictionary', ->
 			expect(translator.translate('web.pages.homepage.promo.title')).to.be.equal('Title of promo box')
 
@@ -176,6 +189,7 @@ describe 'Translator', ->
 			expect( -> translator.translate('web.pages.homepage.promo.newList[5]') ).throw(Error)
 
 	describe '#translatePairs()', ->
+
 		it 'should throw an error if message to translate are not arrays', ->
 			expect( -> translator.translatePairs('web.pages.homepage.promo', 'title', 'list') ).throw(Error)
 
@@ -191,6 +205,7 @@ describe 'Translator', ->
 			)
 
 	describe '#translateMap()', ->
+
 		it 'should throw an error if object is not array or object', ->
 			expect( -> translator.translateMap(new Date)).to.throw(Error)
 
@@ -232,6 +247,7 @@ describe 'Translator', ->
 			]])
 
 	describe '#setCacheStorage()', ->
+
 		it 'should throw an exception if storage is not the right type', ->
 			expect( -> translator.setCacheStorage(new Array) ).throw(Error)
 

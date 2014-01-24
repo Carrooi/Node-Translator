@@ -6,6 +6,11 @@ pluralForms = require './pluralForms'
 Loader = require './Loaders/Loader'
 JsonLoader = require './Loaders/Json'
 
+isWindow = typeof window != 'undefined'
+
+if !isWindow
+	callsite = require 'callsite'
+	path = require 'path'
 
 class Translator
 
@@ -34,6 +39,16 @@ class Translator
 			throw new Error 'You have to set path to base directory or loader.'
 
 		if typeof directoryOrLoader == 'string'
+			if directoryOrLoader.charAt(0) == '.' && isWindow
+				throw new Error 'Relative paths to dictionaries is not supported in browser.'
+
+			if directoryOrLoader.charAt(0) == '.'
+				stack = callsite()
+				directoryOrLoader = path.join(path.dirname(stack[1].getFileName()), directoryOrLoader)
+
+			if !isWindow
+				directoryOrLoader = path.normalize(directoryOrLoader)
+
 			directoryOrLoader = new JsonLoader(directoryOrLoader)
 
 		@setLoader(directoryOrLoader)
