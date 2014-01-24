@@ -29,8 +29,12 @@
       return translator = null;
     });
     describe('#constructor()', function() {
-      return it('should contain some plural forms', function() {
+      it('should contain some plural forms', function() {
         return expect(translator.plurals).not.to.be.eql({});
+      });
+      return it('should create storage with relative path', function() {
+        translator = new Translator('../data');
+        return expect(translator.loader.directory).to.be.equal(dir);
       });
     });
     describe('#normalizeTranslations()', function() {
