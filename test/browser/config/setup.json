@@ -2,7 +2,7 @@
 	"packages": {
 		"test": {
 			"base": "../../",
-			"application": "./test/browser/application.js",
+			"target": "./test/browser/application.js",
 			"modules": [
 				"./lib/*.js",
 				"./test/browser/tests/*.coffee",
@@ -14,5 +14,8 @@
 				"/test/browser/tests/Translator"
 			]
 		}
+	},
+	"debugger": {
+		"minify": false
 	}
 }

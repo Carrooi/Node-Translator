@@ -400,10 +400,6 @@ Unfortunately now there is no way to use caching in browser.
 $ npm test
 ```
 
-There are also tests for browser, but because of this strange [bug](https://github.com/metaskills/mocha-phantomjs/issues/105),
-they will fail. If you want to run them, you have to open `./test/browser/index.html` file in your browser or run
-`npm run test-browser` command.
-
 ## Changelog
 
 * 1.7.2
