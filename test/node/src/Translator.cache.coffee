@@ -29,6 +29,7 @@ describe 'Translator.cache', ->
 	)
 
 	describe '#translate()', ->
+
 		it 'should load translation from cache', ->
 			translator.translate('web.pages.homepage.promo.title')
 			t = translator.cache.load('en:web/pages/homepage/promo')
