@@ -8,15 +8,15 @@
 
   fs = require('fs');
 
-  Translator = require('../../lib/Translator');
+  Translator = require('../../../lib/Translator');
 
   FileStorage = require('cache-storage/Storage/FileStorage');
 
   Cache = require('cache-storage');
 
-  dir = path.normalize(__dirname + '/../data');
+  dir = path.normalize(__dirname + '/../../data');
 
-  cache = path.normalize(__dirname + '/../cache');
+  cache = path.normalize(__dirname + '/../../cache');
 
   translator = null;
 
@@ -33,7 +33,7 @@
         return expect(translator.plurals).not.to.be.eql({});
       });
       return it('should create storage with relative path', function() {
-        translator = new Translator('../data');
+        translator = new Translator('../../data');
         return expect(translator.loader.directory).to.be.equal(dir);
       });
     });

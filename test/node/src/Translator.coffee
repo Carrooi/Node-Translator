@@ -1,12 +1,12 @@
 expect = require('chai').expect
 path = require 'path'
 fs = require 'fs'
-Translator = require '../../lib/Translator'
+Translator = require '../../../lib/Translator'
 FileStorage = require 'cache-storage/Storage/FileStorage'
 Cache = require 'cache-storage'
 
-dir = path.normalize __dirname + '/../data'
-cache = path.normalize __dirname + '/../cache'
+dir = path.normalize __dirname + '/../../data'
+cache = path.normalize __dirname + '/../../cache'
 
 translator = null
 
@@ -27,7 +27,7 @@ describe 'Translator', ->
 			expect(translator.plurals).not.to.be.eql({})
 
 		it 'should create storage with relative path', ->
-			translator = new Translator('../data')
+			translator = new Translator('../../data')
 			expect(translator.loader.directory).to.be.equal(dir)
 
 	describe '#normalizeTranslations()', ->

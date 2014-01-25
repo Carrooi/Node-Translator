@@ -1,2 +1,2 @@
-require('./Translator');
-require('./Translator.cache');
+require('./lib/Translator');
+require('./lib/Translator.cache');
