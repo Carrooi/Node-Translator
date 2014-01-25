@@ -95,28 +95,28 @@ class Translator
 		return @
 
 
-	loadCategory: (path, name) ->
-		categoryName = path + '/' + name
+	loadCategory: (_path, name) ->
+		categoryName = _path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
 			if @cache == null
-				data = @loader.load(path, name, @language)
+				data = @loader.load(_path, name, @language)
 				data = @normalizeTranslations(data)
 			else
 				data = @cache.load(@language + ':' + categoryName)
 
 				if data == null
-					data = @loader.load(path, name, @language)
+					data = @loader.load(_path, name, @language)
 					data = @normalizeTranslations(data)
 
 					conds = {}
 					if typeof window == 'undefined' || (typeof window != 'undefined' && window.require.simq == true && typeof window.require.version != 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)
-						path = @loader.getFileSystemPath(path, name, @language)
-						conds.files = [path] if path != null
+						_path = @loader.getFileSystemPath(_path, name, @language)
+						conds.files = [_path] if _path != null
 
 					@cache.save(@language + ':' + categoryName, data, conds)
 
 				else
-					file = @loader.load(path, name, @language)
+					file = @loader.load(_path, name, @language)
 					data = @normalizeTranslations(file)
 
 			@data[categoryName] = data
@@ -299,13 +299,13 @@ class Translator
 
 	getMessageInfo: (message) ->
 		num = message.lastIndexOf('.')
-		path = message.substr(0, num)
+		_path = message.substr(0, num)
 		name = message.substr(num + 1)
-		num = path.lastIndexOf('.')
-		category = path.substr(num + 1)
-		path = path.substr(0, num).replace(/\./g, '/')
+		num = _path.lastIndexOf('.')
+		category = _path.substr(num + 1)
+		_path = _path.substr(0, num).replace(/\./g, '/')
 		result =
-			path: path
+			path: _path
 			category: category
 			name: name
 		return result

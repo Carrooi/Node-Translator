@@ -25,8 +25,8 @@ class Json extends Loader
 
 
 	load: (parent, name, language) ->
-		path = @getFileSystemPath(parent, name, language)
-		try data = require(path) catch e then data = {}
+		_path = @getFileSystemPath(parent, name, language)
+		try data = require(_path) catch e then data = {}
 		return data
 
 
