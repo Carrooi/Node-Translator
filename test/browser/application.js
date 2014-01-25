@@ -223,6 +223,144 @@
 		}).call(this);
 		
 	
+	}, '/lib/node/path.js': function(exports, module) {
+	
+		/** node globals **/
+		var require = function(name) {return __r__c__.require(name, '/lib/node/path.js');};
+		require.resolve = function(name, parent) {if (parent === null) {parent = '/lib/node/path.js';} return __r__c__.require.resolve(name, parent);};
+		require.define = function(bundle) {__r__c__.require.define(bundle);};
+		require.cache = __r__c__.require.cache;
+		var __filename = '/lib/node/path.js';
+		var __dirname = '/lib/node';
+		var process = {cwd: function() {return '/';}, argv: ['node', '/lib/node/path.js'], env: {}};
+	
+		/** code **/
+		// Taken from https://github.com/joyent/node/blob/master/lib/path.js
+		
+		
+		
+		// resolves . and .. elements in a path array with directory names there
+		// must be no slashes, empty elements, or device names (c:\) in the array
+		// (so also no leading and trailing slashes - it does not distinguish
+		// relative and absolute paths)
+		function normalizeArray(parts, allowAboveRoot) {
+			// if the path tries to go above the root, `up` ends up > 0
+			var up = 0;
+			for (var i = parts.length - 1; i >= 0; i--) {
+				var last = parts[i];
+				if (last === '.') {
+					parts.splice(i, 1);
+				} else if (last === '..') {
+					parts.splice(i, 1);
+					up++;
+				} else if (up) {
+					parts.splice(i, 1);
+					up--;
+				}
+			}
+		
+			// if the path is allowed to go above the root, restore leading ..s
+			if (allowAboveRoot) {
+				for (; up--; up) {
+					parts.unshift('..');
+				}
+			}
+		
+			return parts;
+		}
+		
+		var splitPathRe =
+			/^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+		var splitPath = function(filename) {
+			return splitPathRe.exec(filename).slice(1);
+		};
+		
+		var isBrowser = typeof window !== 'undefined';
+		
+		if (!isBrowser) {
+			var path = require('path');
+		}
+		
+		exports.isAbsolute = function(_path) {
+			if (isBrowser) {
+				return _path.charAt(0) === '/';
+			} else {
+				return path.isAbsolute.call({}, _path);
+			}
+		};
+		
+		exports.normalize = function(_path) {
+			if (isBrowser) {
+				var isAbsolute = exports.isAbsolute(_path),
+					trailingSlash = _path[_path.length - 1] === '/',
+					segments = _path.split('/'),
+					nonEmptySegments = [];
+		
+				// Normalize the path
+				for (var i = 0; i < segments.length; i++) {
+					if (segments[i]) {
+						nonEmptySegments.push(segments[i]);
+					}
+				}
+				_path = normalizeArray(nonEmptySegments, !isAbsolute).join('/');
+		
+				if (!_path && !isAbsolute) {
+					_path = '.';
+				}
+				if (_path && trailingSlash) {
+					_path += '/';
+				}
+		
+				return (isAbsolute ? '/' : '') + _path;
+			} else {
+				return path.normalize.call({}, _path);
+			}
+		};
+		
+		exports.join = function() {
+			if (isBrowser) {
+				var _path = '';
+				for (var i = 0; i < arguments.length; i++) {
+					var segment = arguments[i];
+					if (typeof segment != 'string') {
+						throw new TypeError('Arguments to path.join must be strings');
+					}
+					if (segment) {
+						if (!_path) {
+							_path += segment;
+						} else {
+							_path += '/' + segment;
+						}
+					}
+				}
+				return exports.normalize(_path);
+			} else {
+				return path.join.apply({}, arguments);
+			}
+		};
+		
+		exports.dirname = function(_path) {
+			if (isBrowser) {
+				var result = splitPath(_path),
+					root = result[0],
+					dir = result[1];
+		
+				if (!root && !dir) {
+					// No dirname whatsoever
+					return '.';
+				}
+		
+				if (dir) {
+					// It has a dirname, strip trailing slash
+					dir = dir.substr(0, dir.length - 1);
+				}
+		
+				return root + dir;
+			} else {
+				return path.dirname.call({}, _path);
+			}
+		};
+	
 	}, 'callsite/index.js': function(exports, module) {
 	
 		/** node globals **/
@@ -3435,11 +3573,12 @@
 		
 		  Loader = require('./Loader');
 		
+		  path = require('../node/path');
+		
 		  isWindow = typeof window !== 'undefined';
 		
 		  if (!isWindow) {
 		    callsite = require('callsite');
-		    path = require('path');
 		  }
 		
 		  Json = (function(_super) {
@@ -3448,14 +3587,14 @@
 		    Json.prototype.directory = '/app/lang';
 		
 		    function Json(directory) {
-		      var directoryOrLoader, stack;
+		      var stack;
 		      this.directory = directory != null ? directory : this.directory;
 		      if (this.directory.charAt(0) === '.' && isWindow) {
 		        throw new Error('Relative paths to dictionaries is not supported in browser.');
 		      }
 		      if (this.directory.charAt(0) === '.') {
 		        stack = callsite();
-		        directoryOrLoader = path.dirname(stack[1].getFileName());
+		        this.directory = path.dirname(stack[1].getFileName());
 		      }
 		      if (!isWindow) {
 		        this.directory = path.normalize(this.directory);
@@ -3848,6 +3987,8 @@
 		
 		  Args = require('normalize-arguments');
 		
+		  path = require('./node/path');
+		
 		  pluralForms = require('./pluralForms');
 		
 		  Loader = require('./Loaders/Loader');
@@ -3858,12 +3999,9 @@
 		
 		  if (!isWindow) {
 		    callsite = require('callsite');
-		    path = require('path');
 		  }
 		
 		  Translator = (function() {
-		    Translator.prototype.directory = '/app/lang';
-		
 		    Translator.prototype.loader = null;
 		
 		    Translator.prototype.language = null;
@@ -3876,28 +4014,33 @@
 		
 		    Translator.prototype.cache = null;
 		
-		    function Translator(directoryOrLoader) {
-		      var data, language, stack;
+		    function Translator(pathOrLoader) {
+		      var configPath, data, language, stack;
 		      this.plurals = {};
 		      this.replacements = {};
 		      this.data = {};
-		      if (!directoryOrLoader) {
-		        throw new Error('You have to set path to base directory or loader.');
+		      if (!pathOrLoader) {
+		        throw new Error('You have to set path to base directory or to config file or loader.');
 		      }
-		      if (typeof directoryOrLoader === 'string') {
-		        if (directoryOrLoader.charAt(0) === '.' && isWindow) {
+		      if (typeof pathOrLoader === 'string') {
+		        if (pathOrLoader.charAt(0) === '.' && isWindow) {
 		          throw new Error('Relative paths to dictionaries is not supported in browser.');
 		        }
-		        if (directoryOrLoader.charAt(0) === '.') {
+		        if (pathOrLoader.charAt(0) === '.') {
 		          stack = callsite();
-		          directoryOrLoader = path.join(path.dirname(stack[1].getFileName()), directoryOrLoader);
+		          pathOrLoader = path.join(path.dirname(stack[1].getFileName()), pathOrLoader);
 		        }
-		        if (!isWindow) {
-		          directoryOrLoader = path.normalize(directoryOrLoader);
+		        pathOrLoader = path.normalize(pathOrLoader);
+		        if (pathOrLoader.match(/\.json$/) !== null) {
+		          configPath = pathOrLoader;
+		          pathOrLoader = require(configPath).path;
+		          if (pathOrLoader.charAt(0) === '.') {
+		            pathOrLoader = path.join(path.dirname(configPath), pathOrLoader);
+		          }
 		        }
-		        directoryOrLoader = new JsonLoader(directoryOrLoader);
+		        pathOrLoader = new JsonLoader(pathOrLoader);
 		      }
-		      this.setLoader(directoryOrLoader);
+		      this.setLoader(pathOrLoader);
 		      for (language in pluralForms) {
 		        data = pluralForms[language];
 		        this.addPluralForm(language, data.count, data.form);
@@ -4267,8 +4410,12 @@
 		      return translator = null;
 		    });
 		    describe('#constructor()', function() {
-		      return it('should contain some plural forms', function() {
+		      it('should contain some plural forms', function() {
 		        return expect(translator.plurals).not.to.be.eql({});
+		      });
+		      return it('should create translator from path in config file', function() {
+		        translator = new Translator(dir + '/config.json');
+		        return expect(translator.loader.directory).to.be.equal(dir);
 		      });
 		    });
 		    describe('#normalizeTranslations()', function() {
@@ -4474,6 +4621,25 @@
 		    });
 		  });
 		
+		}).call(this);
+		
+	
+	}, '/test/data/config.json': function(exports, module) {
+	
+		/** node globals **/
+		var require = function(name) {return __r__c__.require(name, '/test/data/config.json');};
+		require.resolve = function(name, parent) {if (parent === null) {parent = '/test/data/config.json';} return __r__c__.require.resolve(name, parent);};
+		require.define = function(bundle) {__r__c__.require.define(bundle);};
+		require.cache = __r__c__.require.cache;
+		var __filename = '/test/data/config.json';
+		var __dirname = '/test/data';
+		var process = {cwd: function() {return '/';}, argv: ['node', '/test/data/config.json'], env: {}};
+	
+		/** code **/
+		module.exports = (function() {
+		return {
+			"path": "."
+		}
 		}).call(this);
 		
 	
@@ -4894,7 +5060,7 @@
 	, 'normalize-arguments': function(exports, module) { module.exports = __r__c__.require('normalize-arguments/lib/Args.js'); }
 	
 	});
-	__r__c__.require.__setStats({"/lib/Loaders/Loader.js":{"atime":1390597616000,"mtime":1390597614000,"ctime":1390597614000},"callsite/index.js":{"atime":1390602811000,"mtime":1359062982000,"ctime":1390602748000},"cache-storage/lib/Cache.js":{"atime":1390597480000,"mtime":1385454550000,"ctime":1390597179000},"cache-storage/lib/Storage/Storage.js":{"atime":1390597475000,"mtime":1385454510000,"ctime":1390597179000},"moment/moment.js":{"atime":1390597489000,"mtime":1390382809000,"ctime":1390597180000},"cache-storage/Storage/Storage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"normalize-arguments/lib/Args.js":{"atime":1390645753000,"mtime":1390645469000,"ctime":1390645741000},"/lib/pluralForms.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/lib/Loaders/Json.js":{"atime":1390603774000,"mtime":1390603771000,"ctime":1390603771000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1390597481000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1390597481000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1390597480000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1390597482000,"mtime":1385454510000,"ctime":1390597179000},"/lib/Translator.js":{"atime":1390603696000,"mtime":1390603693000,"ctime":1390603693000},"/test/browser/tests/Translator.coffee":{"atime":1390646308000,"mtime":1390646304000,"ctime":1390646304000},"/test/data/en.first.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1390646207000,"mtime":1390646201000,"ctime":1390646201000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1390646207000,"mtime":1390646201000,"ctime":1390646201000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/DevNullStorage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/FileStorage.js":{"atime":1390597481000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/MemoryStorage.js":{"atime":1390597481000,"mtime":1385454380000,"ctime":1390597179000},"/package.json":{"atime":1390645739000,"mtime":1390645733000,"ctime":1390645733000},"cache-storage/package.json":{"atime":1390597475000,"mtime":1390597179000,"ctime":1390597179000},"normalize-arguments/package.json":{"atime":1390645744000,"mtime":1390645741000,"ctime":1390645741000},"callsite/package.json":{"atime":1390602811000,"mtime":1390602748000,"ctime":1390602748000}});
+	__r__c__.require.__setStats({"/lib/Loaders/Loader.js":{"atime":1390597616000,"mtime":1390597614000,"ctime":1390597614000},"/lib/node/path.js":{"atime":1390667988000,"mtime":1390667987000,"ctime":1390667987000},"callsite/index.js":{"atime":1390602811000,"mtime":1359062982000,"ctime":1390602748000},"cache-storage/lib/Cache.js":{"atime":1390597480000,"mtime":1385454550000,"ctime":1390597179000},"cache-storage/lib/Storage/Storage.js":{"atime":1390597475000,"mtime":1385454510000,"ctime":1390597179000},"moment/moment.js":{"atime":1390597489000,"mtime":1390382809000,"ctime":1390597180000},"cache-storage/Storage/Storage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"normalize-arguments/lib/Args.js":{"atime":1390645753000,"mtime":1390645469000,"ctime":1390645741000},"/lib/pluralForms.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/lib/Loaders/Json.js":{"atime":1390669547000,"mtime":1390669543000,"ctime":1390669543000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1390597481000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1390597481000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1390597480000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1390597482000,"mtime":1385454510000,"ctime":1390597179000},"/lib/Translator.js":{"atime":1390669547000,"mtime":1390669506000,"ctime":1390669506000},"/test/browser/tests/Translator.coffee":{"atime":1390669781000,"mtime":1390669776000,"ctime":1390669776000},"/test/data/config.json":{"atime":1390669646000,"mtime":1390669645000,"ctime":1390669645000},"/test/data/en.first.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1390669735000,"mtime":1390669732000,"ctime":1390669732000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1390669735000,"mtime":1390669732000,"ctime":1390669732000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/DevNullStorage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/FileStorage.js":{"atime":1390597481000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/MemoryStorage.js":{"atime":1390597481000,"mtime":1385454380000,"ctime":1390597179000},"/package.json":{"atime":1390646355000,"mtime":1390646355000,"ctime":1390646355000},"cache-storage/package.json":{"atime":1390597475000,"mtime":1390597179000,"ctime":1390597179000},"normalize-arguments/package.json":{"atime":1390645744000,"mtime":1390645741000,"ctime":1390645741000},"callsite/package.json":{"atime":1390602811000,"mtime":1390602748000,"ctime":1390602748000}});
 	__r__c__.require.version = '5.6.3';
 	
 	window.require = __r__c__.require;

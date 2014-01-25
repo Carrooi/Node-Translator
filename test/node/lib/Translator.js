@@ -32,8 +32,12 @@
       it('should contain some plural forms', function() {
         return expect(translator.plurals).not.to.be.eql({});
       });
-      return it('should create storage with relative path', function() {
+      it('should create translator with relative path', function() {
         translator = new Translator('../../data');
+        return expect(translator.loader.directory).to.be.equal(dir);
+      });
+      return it('should create translator from path in config file', function() {
+        translator = new Translator('../../data/config.json');
         return expect(translator.loader.directory).to.be.equal(dir);
       });
     });
