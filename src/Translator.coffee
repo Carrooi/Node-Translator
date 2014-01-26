@@ -1,6 +1,7 @@
 Cache = require 'cache-storage'
 Storage = require 'cache-storage/Storage/Storage'
 Args = require 'normalize-arguments'
+path = require './node/path'
 
 pluralForms = require './pluralForms'
 Loader = require './Loaders/Loader'
@@ -10,12 +11,9 @@ isWindow = typeof window != 'undefined'
 
 if !isWindow
 	callsite = require 'callsite'
-	path = require 'path'
 
 class Translator
 
-
-	directory: '/app/lang'
 
 	loader: null
 
@@ -30,28 +28,34 @@ class Translator
 	cache: null
 
 
-	constructor: (directoryOrLoader) ->
+	constructor: (pathOrLoader) ->
 		@plurals = {}
 		@replacements = {}
 		@data = {}
 
-		if !directoryOrLoader
-			throw new Error 'You have to set path to base directory or loader.'
+		if !pathOrLoader
+			throw new Error 'You have to set path to base directory or to config file or loader.'
 
-		if typeof directoryOrLoader == 'string'
-			if directoryOrLoader.charAt(0) == '.' && isWindow
+		if typeof pathOrLoader == 'string'
+			if pathOrLoader.charAt(0) == '.' && isWindow
 				throw new Error 'Relative paths to dictionaries is not supported in browser.'
 
-			if directoryOrLoader.charAt(0) == '.'
+			if pathOrLoader.charAt(0) == '.'
 				stack = callsite()
-				directoryOrLoader = path.join(path.dirname(stack[1].getFileName()), directoryOrLoader)
+				pathOrLoader = path.join(path.dirname(stack[1].getFileName()), pathOrLoader)
 
-			if !isWindow
-				directoryOrLoader = path.normalize(directoryOrLoader)
+			pathOrLoader = path.normalize(pathOrLoader)
 
-			directoryOrLoader = new JsonLoader(directoryOrLoader)
+			if pathOrLoader.match(/\.json$/) != null
+				configPath = pathOrLoader
+				pathOrLoader = require(configPath).path
 
-		@setLoader(directoryOrLoader)
+				if pathOrLoader.charAt(0) == '.'
+					pathOrLoader = path.join(path.dirname(configPath), pathOrLoader)
+
+			pathOrLoader = new JsonLoader(pathOrLoader)
+
+		@setLoader(pathOrLoader)
 
 		for language, data of pluralForms
 			@addPluralForm(language, data.count, data.form)

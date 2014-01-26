@@ -1,10 +1,10 @@
 Loader = require './Loader'
+path = require '../node/path'
 
 isWindow = typeof window != 'undefined'
 
 if !isWindow
 	callsite = require 'callsite'
-	path = require 'path'
 
 class Json extends Loader
 
@@ -18,7 +18,7 @@ class Json extends Loader
 
 		if @directory.charAt(0) == '.'
 			stack = callsite()
-			directoryOrLoader = path.dirname(stack[1].getFileName())
+			@directory = path.dirname(stack[1].getFileName())
 
 		if !isWindow
 			@directory = path.normalize(@directory)

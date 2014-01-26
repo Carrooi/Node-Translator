@@ -12,10 +12,14 @@
 			],
 			"run": [
 				"/test/browser/tests/Translator"
-			]
+			],
+			"ignore": {
+				"packageFiles": true
+			}
 		}
 	},
 	"debugger": {
-		"minify": false
+		"minify": false,
+		"filesStats": false
 	}
 }

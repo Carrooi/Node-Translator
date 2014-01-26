@@ -223,6 +223,144 @@
 		}).call(this);
 		
 	
+	}, '/lib/node/path.js': function(exports, module) {
+	
+		/** node globals **/
+		var require = function(name) {return __r__c__.require(name, '/lib/node/path.js');};
+		require.resolve = function(name, parent) {if (parent === null) {parent = '/lib/node/path.js';} return __r__c__.require.resolve(name, parent);};
+		require.define = function(bundle) {__r__c__.require.define(bundle);};
+		require.cache = __r__c__.require.cache;
+		var __filename = '/lib/node/path.js';
+		var __dirname = '/lib/node';
+		var process = {cwd: function() {return '/';}, argv: ['node', '/lib/node/path.js'], env: {}};
+	
+		/** code **/
+		// Taken from https://github.com/joyent/node/blob/master/lib/path.js
+		
+		
+		
+		// resolves . and .. elements in a path array with directory names there
+		// must be no slashes, empty elements, or device names (c:\) in the array
+		// (so also no leading and trailing slashes - it does not distinguish
+		// relative and absolute paths)
+		function normalizeArray(parts, allowAboveRoot) {
+			// if the path tries to go above the root, `up` ends up > 0
+			var up = 0;
+			for (var i = parts.length - 1; i >= 0; i--) {
+				var last = parts[i];
+				if (last === '.') {
+					parts.splice(i, 1);
+				} else if (last === '..') {
+					parts.splice(i, 1);
+					up++;
+				} else if (up) {
+					parts.splice(i, 1);
+					up--;
+				}
+			}
+		
+			// if the path is allowed to go above the root, restore leading ..s
+			if (allowAboveRoot) {
+				for (; up--; up) {
+					parts.unshift('..');
+				}
+			}
+		
+			return parts;
+		}
+		
+		var splitPathRe =
+			/^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+		var splitPath = function(filename) {
+			return splitPathRe.exec(filename).slice(1);
+		};
+		
+		var isBrowser = typeof window !== 'undefined';
+		
+		if (!isBrowser) {
+			var path = require('path');
+		}
+		
+		exports.isAbsolute = function(_path) {
+			if (isBrowser) {
+				return _path.charAt(0) === '/';
+			} else {
+				return path.isAbsolute.call({}, _path);
+			}
+		};
+		
+		exports.normalize = function(_path) {
+			if (isBrowser) {
+				var isAbsolute = exports.isAbsolute(_path),
+					trailingSlash = _path[_path.length - 1] === '/',
+					segments = _path.split('/'),
+					nonEmptySegments = [];
+		
+				// Normalize the path
+				for (var i = 0; i < segments.length; i++) {
+					if (segments[i]) {
+						nonEmptySegments.push(segments[i]);
+					}
+				}
+				_path = normalizeArray(nonEmptySegments, !isAbsolute).join('/');
+		
+				if (!_path && !isAbsolute) {
+					_path = '.';
+				}
+				if (_path && trailingSlash) {
+					_path += '/';
+				}
+		
+				return (isAbsolute ? '/' : '') + _path;
+			} else {
+				return path.normalize.call({}, _path);
+			}
+		};
+		
+		exports.join = function() {
+			if (isBrowser) {
+				var _path = '';
+				for (var i = 0; i < arguments.length; i++) {
+					var segment = arguments[i];
+					if (typeof segment != 'string') {
+						throw new TypeError('Arguments to path.join must be strings');
+					}
+					if (segment) {
+						if (!_path) {
+							_path += segment;
+						} else {
+							_path += '/' + segment;
+						}
+					}
+				}
+				return exports.normalize(_path);
+			} else {
+				return path.join.apply({}, arguments);
+			}
+		};
+		
+		exports.dirname = function(_path) {
+			if (isBrowser) {
+				var result = splitPath(_path),
+					root = result[0],
+					dir = result[1];
+		
+				if (!root && !dir) {
+					// No dirname whatsoever
+					return '.';
+				}
+		
+				if (dir) {
+					// It has a dirname, strip trailing slash
+					dir = dir.substr(0, dir.length - 1);
+				}
+		
+				return root + dir;
+			} else {
+				return path.dirname.call({}, _path);
+			}
+		};
+	
 	}, 'callsite/index.js': function(exports, module) {
 	
 		/** node globals **/
@@ -3435,11 +3573,12 @@
 		
 		  Loader = require('./Loader');
 		
+		  path = require('../node/path');
+		
 		  isWindow = typeof window !== 'undefined';
 		
 		  if (!isWindow) {
 		    callsite = require('callsite');
-		    path = require('path');
 		  }
 		
 		  Json = (function(_super) {
@@ -3448,14 +3587,14 @@
 		    Json.prototype.directory = '/app/lang';
 		
 		    function Json(directory) {
-		      var directoryOrLoader, stack;
+		      var stack;
 		      this.directory = directory != null ? directory : this.directory;
 		      if (this.directory.charAt(0) === '.' && isWindow) {
 		        throw new Error('Relative paths to dictionaries is not supported in browser.');
 		      }
 		      if (this.directory.charAt(0) === '.') {
 		        stack = callsite();
-		        directoryOrLoader = path.dirname(stack[1].getFileName());
+		        this.directory = path.dirname(stack[1].getFileName());
 		      }
 		      if (!isWindow) {
 		        this.directory = path.normalize(this.directory);
@@ -3848,6 +3987,8 @@
 		
 		  Args = require('normalize-arguments');
 		
+		  path = require('./node/path');
+		
 		  pluralForms = require('./pluralForms');
 		
 		  Loader = require('./Loaders/Loader');
@@ -3858,12 +3999,9 @@
 		
 		  if (!isWindow) {
 		    callsite = require('callsite');
-		    path = require('path');
 		  }
 		
 		  Translator = (function() {
-		    Translator.prototype.directory = '/app/lang';
-		
 		    Translator.prototype.loader = null;
 		
 		    Translator.prototype.language = null;
@@ -3876,28 +4014,33 @@
 		
 		    Translator.prototype.cache = null;
 		
-		    function Translator(directoryOrLoader) {
-		      var data, language, stack;
+		    function Translator(pathOrLoader) {
+		      var configPath, data, language, stack;
 		      this.plurals = {};
 		      this.replacements = {};
 		      this.data = {};
-		      if (!directoryOrLoader) {
-		        throw new Error('You have to set path to base directory or loader.');
+		      if (!pathOrLoader) {
+		        throw new Error('You have to set path to base directory or to config file or loader.');
 		      }
-		      if (typeof directoryOrLoader === 'string') {
-		        if (directoryOrLoader.charAt(0) === '.' && isWindow) {
+		      if (typeof pathOrLoader === 'string') {
+		        if (pathOrLoader.charAt(0) === '.' && isWindow) {
 		          throw new Error('Relative paths to dictionaries is not supported in browser.');
 		        }
-		        if (directoryOrLoader.charAt(0) === '.') {
+		        if (pathOrLoader.charAt(0) === '.') {
 		          stack = callsite();
-		          directoryOrLoader = path.join(path.dirname(stack[1].getFileName()), directoryOrLoader);
+		          pathOrLoader = path.join(path.dirname(stack[1].getFileName()), pathOrLoader);
 		        }
-		        if (!isWindow) {
-		          directoryOrLoader = path.normalize(directoryOrLoader);
+		        pathOrLoader = path.normalize(pathOrLoader);
+		        if (pathOrLoader.match(/\.json$/) !== null) {
+		          configPath = pathOrLoader;
+		          pathOrLoader = require(configPath).path;
+		          if (pathOrLoader.charAt(0) === '.') {
+		            pathOrLoader = path.join(path.dirname(configPath), pathOrLoader);
+		          }
 		        }
-		        directoryOrLoader = new JsonLoader(directoryOrLoader);
+		        pathOrLoader = new JsonLoader(pathOrLoader);
 		      }
-		      this.setLoader(directoryOrLoader);
+		      this.setLoader(pathOrLoader);
 		      for (language in pluralForms) {
 		        data = pluralForms[language];
 		        this.addPluralForm(language, data.count, data.form);
@@ -4267,8 +4410,12 @@
 		      return translator = null;
 		    });
 		    describe('#constructor()', function() {
-		      return it('should contain some plural forms', function() {
+		      it('should contain some plural forms', function() {
 		        return expect(translator.plurals).not.to.be.eql({});
+		      });
+		      return it('should create translator from path in config file', function() {
+		        translator = new Translator(dir + '/config.json');
+		        return expect(translator.loader.directory).to.be.equal(dir);
 		      });
 		    });
 		    describe('#normalizeTranslations()', function() {
@@ -4477,6 +4624,25 @@
 		}).call(this);
 		
 	
+	}, '/test/data/config.json': function(exports, module) {
+	
+		/** node globals **/
+		var require = function(name) {return __r__c__.require(name, '/test/data/config.json');};
+		require.resolve = function(name, parent) {if (parent === null) {parent = '/test/data/config.json';} return __r__c__.require.resolve(name, parent);};
+		require.define = function(bundle) {__r__c__.require.define(bundle);};
+		require.cache = __r__c__.require.cache;
+		var __filename = '/test/data/config.json';
+		var __dirname = '/test/data';
+		var process = {cwd: function() {return '/';}, argv: ['node', '/test/data/config.json'], env: {}};
+	
+		/** code **/
+		module.exports = (function() {
+		return {
+			"path": "."
+		}
+		}).call(this);
+		
+	
 	}, '/test/data/en.first.json': function(exports, module) {
 	
 		/** node globals **/
@@ -4657,244 +4823,12 @@
 		/** code **/
 		module.exports = require('../lib/Storage/MemoryStorage');
 	
-	}, '/package.json': function(exports, module) {
-	
-		/** node globals **/
-		var require = function(name) {return __r__c__.require(name, '/package.json');};
-		require.resolve = function(name, parent) {if (parent === null) {parent = '/package.json';} return __r__c__.require.resolve(name, parent);};
-		require.define = function(bundle) {__r__c__.require.define(bundle);};
-		require.cache = __r__c__.require.cache;
-		var __filename = '/package.json';
-		var __dirname = '/';
-		var process = {cwd: function() {return '/';}, argv: ['node', '/package.json'], env: {}};
-	
-		/** code **/
-		module.exports = (function() {
-		return {
-			"name": "translator",
-			"description": "Translator for node and also for browser",
-			"version": "1.7.2",
-			"author": {
-				"name": "David Kudera",
-				"email": "sakren@gmail.com"
-			},
-			"keywords": [
-				"translator",
-				"localization",
-				"i18n"
-			],
-			"repository": {
-				"type": "git",
-				"url": "git@github.com:sakren/node-translator.git"
-			},
-			"license": "MIT",
-			"engines": {
-				"node": "*"
-			},
-			"main": "./lib/Translator.js",
-			"dependencies": {
-				"cache-storage": "1.4.1",
-				"normalize-arguments": "1.2.0",
-				"callsite": "1.0.0"
-			},
-			"devDependencies": {
-				"chai": "1.8.1",
-				"mocha": "1.15.1",
-				"mocha-phantomjs": "3.1.6",
-				"phantomjs": "1.9.2-4"
-			},
-			"scripts": {
-				"test": "npm run test-node && npm run test-browser",
-				"build-and-test": "npm run build-test && npm run test",
-				"test-node": "mocha ./test/node/index.js --reporter spec",
-				"test-browser": "mocha-phantomjs -p ./node_modules/phantomjs/bin/phantomjs ./test/browser/index.html",
-				"build-test": "cd ./test/browser; simq build;"
-			}
-		}
-		}).call(this);
-		
-	
-	}, 'cache-storage/package.json': function(exports, module) {
-	
-		/** node globals **/
-		var require = function(name) {return __r__c__.require(name, 'cache-storage/package.json');};
-		require.resolve = function(name, parent) {if (parent === null) {parent = 'cache-storage/package.json';} return __r__c__.require.resolve(name, parent);};
-		require.define = function(bundle) {__r__c__.require.define(bundle);};
-		require.cache = __r__c__.require.cache;
-		var __filename = 'cache-storage/package.json';
-		var __dirname = 'cache-storage';
-		var process = {cwd: function() {return '/';}, argv: ['node', 'cache-storage/package.json'], env: {}};
-	
-		/** code **/
-		module.exports = (function() {
-		return {
-		  "name": "cache-storage",
-		  "description": "Advanced cache storage for node js",
-		  "version": "1.4.1",
-		  "author": {
-		    "name": "David Kudera",
-		    "email": "sakren@gmail.com"
-		  },
-		  "keywords": [
-		    "cache",
-		    "caching",
-		    "storage",
-		    "memory"
-		  ],
-		  "repository": {
-		    "type": "git",
-		    "url": "git@github.com:sakren/node-cache-storage.git"
-		  },
-		  "license": "MIT",
-		  "engines": {
-		    "node": "*"
-		  },
-		  "main": "./lib/Cache.js",
-		  "dependencies": {
-		    "moment": "latest"
-		  },
-		  "devDependencies": {
-		    "mocha": "latest",
-		    "chai": "latest"
-		  },
-		  "scripts": {
-		    "test": "cd ./test; echo \"Testing in node:\"; mocha ./node/index.js --reporter spec; cd ./browser; echo \"Testing in browser:\"; mocha-phantomjs ./index.html;"
-		  },
-		  "readme": "# cache-storage\n\nAdvanced cache storage inspired by cache in [Nette framework](http://doc.nette.org/en/caching).\n\nCan be also used in browser for example with [simq](https://npmjs.org/package/simq).\n\n## Installing\n\n```\n$ npm install cache-storage\n```\n\n## Creating cache\n\n```\nvar Cache = require('cache-storage');\nvar FileStorage = require('cache-storage/Storage/FileStorage');\n\nvar cache = new Cache(new FileStorage('./temp'), 'namespace');\n```\n\nYou have to set storage which you want to use (their list below) and name of namespace for cache, because you can use\nmore than one independent caches.\n\n## Available storages\n\n* FileStorage (cache-storage/Storage/FileStorage - saving data to json files)\n* BrowserLocalStorage (cache-storage/Storage/BrowserLocalStorage - saving data to HTML5 local storage)\n* DevNullStorage (cache-storage/Storage/DevNullStorage - does not save anything and load always null)\n* MemoryStorage (cache-storage/Storage/MemoryStorage - saving data just into storage's class property)\n\nMore storages will be added in future.\n\n### Only node storages\n\n* FileStorage\n\n### Only browser storages\n\n* BrowserLocalStorage\n\n## Loading & saving\n\n```\nvar data = cache.load('some_data');\n\nif (data === null) {\n\t// let's save data to cache\n\tdata = cache.save('some_data', 'some value of some_data');\n}\n\nconsole.log(data);\t\t// output: some value of some_data\n```\n\nThere is also other more simple way to save data to cache if they are not in cache already.\n\n```\nvar data = cache.load('some_data', function() {\n\treturn 'some value of some_data';\n});\n```\n\nWhen no data were found, then fallback anonymous function is called and data from return statement are used.\nCache.save function always return given data.\n\n## Removing\n\n```\nif (cache.load('some_data') !== null) {\n\tcache.remove('some_data');\n\n\t// other way: cache.save('some_data', null);\n}\n```\n\n## Expiration\n\nYou can set some conditions and information for every data which will be used for auto expiration or for your manual\nexpiration.\n\n```\ncache.save('some_data', 'some value of some_data', {\n\tfiles: ['./images.txt', './info.txt'],\t\t// expiration by files\n\ttags: ['image', 'article'],\t\t\t\t\t// tags for manual expiration\n\texpire: '2015-12-24 18:00',\t\t\t\t\t// expire data in given date (other examples below)\n\titems: ['some_other_data'],\t\t\t\t\t// expire if other data in cache expires\n\tpriority: 50\t\t\t\t\t\t\t\t// example below\n});\n```\n\n### Expiration by files\n\nIf you set files to save function, then that item will expire when some of given files is changed.\n\nThis type of expiration can be used also in browser, but only with [simq](https://npmjs.org/package/simq) and with allowed\noption `filesStats`. See at documentation of [simq](https://npmjs.org/package/simq).\n\n### Expiration by tags\n\n```\ncache.clean({\n\ttags: ['image']\n});\n```\n\nNow every item in cache with tag image will be removed.\n\n### Expiration by date\n\nThere are two ways to expire data by date. First way is to set exact date in YYYY-MM-DD HH:mm format. Second way is to\nset literal object with information about adding date to actual date.\n\n```\ncache.save('some_data', 'some value of some_data', {\n\texpire: {days: 1}\n});\n```\n\nNow some_data will expire tomorrow. You can see full documentation in moment.js [documentation](http://momentjs.com/docs/#/manipulating/add/).\n\n### Items expiration\n\nEvery cache item can also depend on other cached items. If some of these other items is invalidated, then also this main\nis invalidated.\n\n### Expiration by priority\n\n```\ncache.clean({\n\tpriority: 100\n});\n```\n\nAll items with priority 100 or below will expire.\n\n## Removing all in namespace\n\n```\ncache.clean(Cache.ALL);\t\t// or cache.clean('all');\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.4.1\n\t+ Can not use some js reserved words\n\n* 1.4.0\n\t+ Bug with tests\n\t+ Added support for invalidating cache in browser by files (only with [simq](https://npmjs.org/package/simq))\n\n* 1.3.0\n\t+ Added DevNullStorage\n\t+ Added MemoryStorage\n\t+ FileStorage throws an error on browser\n\t+ Refactoring storages\n\n* 1.2.4\n\t+ Rewritten tests\n\t+ Added tests for browser\n\t+ Refactoring storages\n\t+ Bad encoding in FileStorage\n\n* 1.2.3\n\t+ Shortcut for base Storage class\n\n* 1.2.2\n\t+ Cache throw error if storage is not instance of Storage class\n\n* 1.2.1\n\t+ FileStorage throw error if path does not exists or if it is a directory\n\n+ 1.2.0\n\t+ Bugs in dependencies parser\n\t+ Written some mocha tests\n\t+ Added changelog\n\n+ 1.1.2\n\t+ Added MIT license\n\n* 1.1.1\n\t+ Renamed repository (cache-storage => node-cache-storage)\n\n* 1.1.0\n\t+ Added support for HTML5 local storage\n\n* 1.0.2\n\t+ Removed dependency on crypto\n\n* 1.0.1\n\t+ Removed hard dependencies on fs and path\n\t+ Trying other hash methods usable in browser\n\n\n* 1.0.0\n\t+ Initial version",
-		  "readmeFilename": "README.md",
-		  "bugs": {
-		    "url": "https://github.com/sakren/node-cache-storage/issues"
-		  },
-		  "homepage": "https://github.com/sakren/node-cache-storage",
-		  "_id": "cache-storage@1.4.1",
-		  "_from": "cache-storage@1.4.1"
-		}
-		
-		}).call(this);
-		
-	
-	}, 'normalize-arguments/package.json': function(exports, module) {
-	
-		/** node globals **/
-		var require = function(name) {return __r__c__.require(name, 'normalize-arguments/package.json');};
-		require.resolve = function(name, parent) {if (parent === null) {parent = 'normalize-arguments/package.json';} return __r__c__.require.resolve(name, parent);};
-		require.define = function(bundle) {__r__c__.require.define(bundle);};
-		require.cache = __r__c__.require.cache;
-		var __filename = 'normalize-arguments/package.json';
-		var __dirname = 'normalize-arguments';
-		var process = {cwd: function() {return '/';}, argv: ['node', 'normalize-arguments/package.json'], env: {}};
-	
-		/** code **/
-		module.exports = (function() {
-		return {
-		  "name": "normalize-arguments",
-		  "description": "Normalize arguments almost like for overloaded methods (not really)",
-		  "version": "1.2.0",
-		  "author": {
-		    "name": "David Kudera",
-		    "email": "sakren@gmail.com"
-		  },
-		  "keywords": [
-		    "arguments",
-		    "overload",
-		    "parameters",
-		    "method",
-		    "function"
-		  ],
-		  "repository": {
-		    "type": "git",
-		    "url": "git@github.com:sakren/node-normalize-arguments.git"
-		  },
-		  "license": "MIT",
-		  "main": "./lib/Args.js",
-		  "devDependencies": {
-		    "chai": "~1.8.1",
-		    "mocha": "~1.17.1",
-		    "mocha-phantomjs": "~3.3.1",
-		    "phantomjs": "~1.9.6-0"
-		  },
-		  "scripts": {
-		    "test": "npm run test-node && npm run test-browser",
-		    "test-node": "mocha ./test/node/index.js --reporter spec;",
-		    "test-browser": "mocha-phantomjs -p ./node_modules/phantomjs/bin/phantomjs ./test/browser/index.html",
-		    "build-and-test": "npm run build && npm run test",
-		    "build": "npm run build-standalone && npm run build-minified && npm run build-test",
-		    "build-test": "cd ./test/browser; simq build;",
-		    "build-standalone": "simq build --config ./config/source.json",
-		    "build-minified": "simq build --config ./config/minified.json"
-		  },
-		  "readme": "[![NPM version](https://badge.fury.io/js/normalize-arguments.png)](http://badge.fury.io/js/normalize-arguments)\n[![Dependency Status](https://gemnasium.com/sakren/node-normalize-arguments.png)](https://gemnasium.com/sakren/node-normalize-arguments)\n[![Build Status](https://travis-ci.org/sakren/node-normalize-arguments.png?branch=master)](https://travis-ci.org/sakren/node-normalize-arguments)\n\n[![Donate](http://b.repl.ca/v1/donate-PayPal-brightgreen.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LWVXQAPZ33USW)\n\n# normalize-arguments\n\nNormalize arguments almost like for overloaded methods (not really).\n\nIf you want to use overloaded methods, please look at some other package (like [over](https://npmjs.org/package/over)\nor [overloadjs](https://npmjs.org/package/overloadjs)).\n\nThis package just normalize order of arguments in method, so you do not need to pass all arguments into method call\n(eg. like in jQuery).\n\nBased on data type of arguments.\n\nYou can use this package also in browser for example with [simq](https://github.com/sakren/node-simq) or use standalone\nbuild.\n\n## Installation\n\n```\n$ npm install normalize-arguments\n```\n\nStandalone build for browser:\n* [Source version](https://raw.github.com/sakren/node-normalize-arguments/master/normalizeArguments.js)\n* [Minified version](https://raw.github.com/sakren/node-normalize-arguments/master/normalizeArguments.min.js)\n\n## Usage\n\n```\nvar args = require('normalize-arguments');\n\n// or standalone build in browser:\nvar args = normalizeArguments;\n\nvar fn = function(list, count, data, base) {\n\targuments = args(arguments, [args.object, args.number(null), args.object({}), args.string(null)]);\n\tlist = arguments[0];\t\t// someList\n\tcount = arguments[1];\t\t// null\n\tdata = arguments[2];\t\t// {}\n\tbase = arguments[3];\t\t// 'and base argument'\n};\n\nfn(someList, 'and base argument');\n```\n\nYou can see, that defined variables in function head are quite useless, but it is good to keep them there (qg. for better\nreadability or IDE autocompletion).\n\n## Data types registered in args object\n\n* `string`\n* `number`\n* `boolean`\n* `array`\n* `object`\n* `any`\n* `fn`\n* `oneOf`: special type, see below\n\nIf you will just set some of these options then it means, that argument on position of selected option is needed and if\nyou will not pass it in method call, exception will be thrown.\n\n## Default values\n\nSetting is exactly the same like setting required arguments, but you just have to call this option. Argument which you will\npass into option call, will be used as default value for argument (look above).\n\n## oneOf option\n\nYou can use `oneOf` option to specify, in which type must be argument and when you don't want to use `any` option.\n\n```\nargs(arguments, [args.oneOf([args.array, args.object]), args.string, args.number]);\n\n// or with default value\n\nargs(arguments, [args.oneOf([args.array, args.object], []), args.string, args.number]);\n```\n\nNow first argument must be array or literal object and in second example default value will be empty array.\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.2.0\n\t+ Added tests for browser\n\t+ Added standalone build for browser\n\t+ Added badges and travis build\n\t+ Optimized arguments parsing\n\n* 1.1.2\n\t+ Some optimizations\n\n* 1.1.1\n\t+ Passed null in method (default behavior without this package)\n\n* 1.1.0\n\t+ Added oneOf option\n\n* 1.0.1\n\t+ Typo in readme\n\n* 1.0.0\n\t+ First version",
-		  "readmeFilename": "README.md",
-		  "bugs": {
-		    "url": "https://github.com/sakren/node-normalize-arguments/issues"
-		  },
-		  "homepage": "https://github.com/sakren/node-normalize-arguments",
-		  "_id": "normalize-arguments@1.2.0",
-		  "dist": {
-		    "shasum": "5e1a729436624d80abe837f9a9f52942515ce266"
-		  },
-		  "_from": "normalize-arguments@1.2.0",
-		  "_resolved": "https://registry.npmjs.org/normalize-arguments/-/normalize-arguments-1.2.0.tgz"
-		}
-		
-		}).call(this);
-		
-	
-	}, 'callsite/package.json': function(exports, module) {
-	
-		/** node globals **/
-		var require = function(name) {return __r__c__.require(name, 'callsite/package.json');};
-		require.resolve = function(name, parent) {if (parent === null) {parent = 'callsite/package.json';} return __r__c__.require.resolve(name, parent);};
-		require.define = function(bundle) {__r__c__.require.define(bundle);};
-		require.cache = __r__c__.require.cache;
-		var __filename = 'callsite/package.json';
-		var __dirname = 'callsite';
-		var process = {cwd: function() {return '/';}, argv: ['node', 'callsite/package.json'], env: {}};
-	
-		/** code **/
-		module.exports = (function() {
-		return {
-		  "name": "callsite",
-		  "version": "1.0.0",
-		  "description": "access to v8's CallSites",
-		  "keywords": [
-		    "stack",
-		    "trace",
-		    "line"
-		  ],
-		  "author": {
-		    "name": "TJ Holowaychuk",
-		    "email": "tj@vision-media.ca"
-		  },
-		  "dependencies": {},
-		  "devDependencies": {
-		    "mocha": "*",
-		    "should": "*"
-		  },
-		  "main": "index",
-		  "engines": {
-		    "node": "*"
-		  },
-		  "readme": "# callstack\n\n  Access to v8's \"raw\" `CallSite`s.\n\n## Installation\n\n    $ npm install callsite\n\n## Example\n\n```js\nvar stack = require('callsite');\n\nfoo();\n\nfunction foo() {\n  bar();\n}\n\nfunction bar() {\n  baz();\n}\n\nfunction baz() {\n  console.log();\n  stack().forEach(function(site){\n    console.log('  \\033[36m%s\\033[90m in %s:%d\\033[0m'\n      , site.getFunctionName() || 'anonymous'\n      , site.getFileName()\n      , site.getLineNumber());\n  });\n  console.log();\n}\n```\n\n## Why?\n\n  Because you can do weird, stupid, clever, wacky things such as:\n\n  - [better-assert](https://github.com/visionmedia/better-assert)\n\n## License\n\n  MIT\n",
-		  "readmeFilename": "Readme.md",
-		  "_id": "callsite@1.0.0",
-		  "dist": {
-		    "shasum": "5bd0a21871110cc4720abf4d8498bab17a74c902"
-		  },
-		  "_from": "callsite@1.0.0",
-		  "_resolved": "https://registry.npmjs.org/callsite/-/callsite-1.0.0.tgz"
-		}
-		
-		}).call(this);
-		
-	
 	}, 'callsite': function(exports, module) { module.exports = __r__c__.require('callsite/index.js'); }
 	, 'cache-storage': function(exports, module) { module.exports = __r__c__.require('cache-storage/lib/Cache.js'); }
 	, 'moment': function(exports, module) { module.exports = __r__c__.require('moment/moment.js'); }
 	, 'normalize-arguments': function(exports, module) { module.exports = __r__c__.require('normalize-arguments/lib/Args.js'); }
 	
 	});
-	__r__c__.require.__setStats({"/lib/Loaders/Loader.js":{"atime":1390597616000,"mtime":1390597614000,"ctime":1390597614000},"callsite/index.js":{"atime":1390602811000,"mtime":1359062982000,"ctime":1390602748000},"cache-storage/lib/Cache.js":{"atime":1390597480000,"mtime":1385454550000,"ctime":1390597179000},"cache-storage/lib/Storage/Storage.js":{"atime":1390597475000,"mtime":1385454510000,"ctime":1390597179000},"moment/moment.js":{"atime":1390597489000,"mtime":1390382809000,"ctime":1390597180000},"cache-storage/Storage/Storage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"normalize-arguments/lib/Args.js":{"atime":1390645753000,"mtime":1390645469000,"ctime":1390645741000},"/lib/pluralForms.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/lib/Loaders/Json.js":{"atime":1390603774000,"mtime":1390603771000,"ctime":1390603771000},"cache-storage/lib/Storage/BrowserLocalStorage.js":{"atime":1390597481000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/DevNullStorage.js":{"atime":1390597481000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/FileStorage.js":{"atime":1390597480000,"mtime":1385454510000,"ctime":1390597179000},"cache-storage/lib/Storage/MemoryStorage.js":{"atime":1390597482000,"mtime":1385454510000,"ctime":1390597179000},"/lib/Translator.js":{"atime":1390603696000,"mtime":1390603693000,"ctime":1390603693000},"/test/browser/tests/Translator.coffee":{"atime":1390646308000,"mtime":1390646304000,"ctime":1390646304000},"/test/data/en.first.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/test/data/web/pages/homepage/en.cached.json":{"atime":1390646207000,"mtime":1390646201000,"ctime":1390646201000},"/test/data/web/pages/homepage/en.promo.json":{"atime":1390597475000,"mtime":1390596891000,"ctime":1390596891000},"/test/data/web/pages/homepage/en.simple.json":{"atime":1390646207000,"mtime":1390646201000,"ctime":1390646201000},"cache-storage/Storage/BrowserLocalStorage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/DevNullStorage.js":{"atime":1390597489000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/FileStorage.js":{"atime":1390597481000,"mtime":1385454380000,"ctime":1390597179000},"cache-storage/Storage/MemoryStorage.js":{"atime":1390597481000,"mtime":1385454380000,"ctime":1390597179000},"/package.json":{"atime":1390645739000,"mtime":1390645733000,"ctime":1390645733000},"cache-storage/package.json":{"atime":1390597475000,"mtime":1390597179000,"ctime":1390597179000},"normalize-arguments/package.json":{"atime":1390645744000,"mtime":1390645741000,"ctime":1390645741000},"callsite/package.json":{"atime":1390602811000,"mtime":1390602748000,"ctime":1390602748000}});
 	__r__c__.require.version = '5.6.3';
 	
 	window.require = __r__c__.require;

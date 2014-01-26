@@ -22,6 +22,10 @@ describe 'Translator', ->
 		it 'should contain some plural forms', ->
 			expect(translator.plurals).not.to.be.eql({})
 
+		it 'should create translator from path in config file', ->
+			translator = new Translator(dir + '/config.json')
+			expect(translator.loader.directory).to.be.equal(dir)
+
 	describe '#normalizeTranslations()', ->
 
 		it 'should return normalized object with dictionary', ->

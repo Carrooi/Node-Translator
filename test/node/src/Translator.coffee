@@ -26,8 +26,12 @@ describe 'Translator', ->
 		it 'should contain some plural forms', ->
 			expect(translator.plurals).not.to.be.eql({})
 
-		it 'should create storage with relative path', ->
+		it 'should create translator with relative path', ->
 			translator = new Translator('../../data')
+			expect(translator.loader.directory).to.be.equal(dir)
+
+		it 'should create translator from path in config file', ->
+			translator = new Translator('../../data/config.json')
 			expect(translator.loader.directory).to.be.equal(dir)
 
 	describe '#normalizeTranslations()', ->
