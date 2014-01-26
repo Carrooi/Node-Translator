@@ -18,10 +18,16 @@ describe 'Translator', ->
 	)
 
 	describe '#constructor()', ->
+
 		it 'should contain some plural forms', ->
 			expect(translator.plurals).not.to.be.eql({})
 
+		it 'should create translator from path in config file', ->
+			translator = new Translator(dir + '/config.json')
+			expect(translator.loader.directory).to.be.equal(dir)
+
 	describe '#normalizeTranslations()', ->
+
 		it 'should return normalized object with dictionary', ->
 			expect(translator.normalizeTranslations(
 				car: 'car'
@@ -81,6 +87,7 @@ describe 'Translator', ->
 			)
 
 	describe '#getMessageInfo()', ->
+
 		it 'should return information about dictionary from message to translate', ->
 			expect(translator.getMessageInfo('web.pages.homepage.promo.title')).to.be.eql(
 				path: 'web/pages/homepage'
@@ -89,22 +96,50 @@ describe 'Translator', ->
 			)
 
 	describe '#loadCategory()', ->
+
 		it 'should load parsed dictionary', ->
 			expect(translator.loadCategory('web/pages/homepage', 'simple')).to.be.eql(
 				title: ['Title of promo box']
+			)
+
+		it 'should load dictionary for different language', ->
+			expect(translator.loadCategory('web/pages/homepage', 'simple', 'cs')).to.be.eql(
+				title: ['Titulek promo boxu']
 			)
 
 		it 'should return empty object if dictionary does not exists', ->
 			expect(translator.loadCategory('some/unknown', 'translation')).to.be.eql({})
 
 	describe '#findTranslation()', ->
+
 		it 'should return english translations from dictionary', ->
 			expect(translator.findTranslation('web.pages.homepage.promo.title')).to.be.eql(['Title of promo box'])
+
+		it 'should return translations from dictionary for different language', ->
+			expect(translator.findTranslation('web.pages.homepage.simple.title', 'cs')).to.be.eql(['Titulek promo boxu'])
 
 		it 'should return null when translation does not exists', ->
 			expect(translator.findTranslation('some.unknown.translation')).to.be.null
 
+		it 'should return null when translation does not exists for given language', ->
+			expect(translator.findTranslation('some.unknown.translation', 'cs')).to.be.null
+
+	describe '#hasTranslation()', ->
+
+		it 'should return true when translation exists', ->
+			expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be.true
+
+		it 'should return true when translation exists for different language', ->
+			expect(translator.hasTranslation('web.pages.homepage.simple.title', 'cs')).to.be.true
+
+		it 'should return false when translation does not exists', ->
+			expect(translator.hasTranslation('some.unknown.translation')).to.be.false
+
+		it 'should return false when translation does not exists for different language', ->
+			expect(translator.hasTranslation('some.unknown.translation', 'cs')).to.be.false
+
 	describe '#pluralize()', ->
+
 		it 'should return right version of translation(s) by count', ->
 			cars = ['1 car', '%count% cars']
 			expect(translator.pluralize('car', cars, 1)).to.be.equal('1 car')
@@ -114,7 +149,17 @@ describe 'Translator', ->
 			expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 apple', '1 orange'])
 			expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% apples', '%count% oranges'])
 
+		it 'should return right version of translation(s) by count for different language', ->
+			cars = ['1 auto', '%count% auta', '%count% aut']
+			expect(translator.pluralize('car', cars, 1, 'cs')).to.be.equal('1 auto')
+			expect(translator.pluralize('car', cars, 4, 'cs')).to.be.equal('%count% auta')
+
+			fruits = [['1 jablko', '%count% jablka', '%count% jablek'], ['1 pomeranč', '%count% pomeranče', '%count% pomerančů']]
+			expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 jablko', '1 pomeranč'])
+			expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% jablka', '%count% pomeranče'])
+
 	describe '#prepareTranslation()', ->
+
 		it 'should return expanded translation with arguments', ->
 			translator.addReplacement('item', 'car')
 			expect(translator.prepareTranslation('%item% has got %count% %append%.',
@@ -123,6 +168,7 @@ describe 'Translator', ->
 			)).to.be.equal('car has got 5 things.')
 
 	describe '#applyReplacements()', ->
+
 		it 'should add replacements to text', ->
 			expect(translator.applyReplacements('%one% %two% %three%',
 				one: 1
@@ -131,6 +177,7 @@ describe 'Translator', ->
 			)).to.be.equal('1 2 3')
 
 	describe '#translate()', ->
+
 		it 'should return translated text from dictionary', ->
 			expect(translator.translate('web.pages.homepage.promo.title')).to.be.equal('Title of promo box')
 
@@ -168,7 +215,14 @@ describe 'Translator', ->
 		it 'should throw an error when translating one item which does not exists', ->
 			expect( -> translator.translate('web.pages.homepage.promo.newList[5]') ).throw(Error)
 
+		it 'should return translated text from dictionary for different language', ->
+			expect(translator.translate('cs|web.pages.homepage.simple.title')).to.be.equal('Titulek promo boxu')
+
+		it 'should return original text if text is eclosed in \':\'', ->
+			expect(translator.translate(':cs|do.not.translate.me:')).to.be.equal('do.not.translate.me')
+
 	describe '#translatePairs()', ->
+
 		it 'should throw an error if message to translate are not arrays', ->
 			expect( -> translator.translatePairs('web.pages.homepage.promo', 'title', 'list') ).throw(Error)
 
@@ -184,6 +238,7 @@ describe 'Translator', ->
 			)
 
 	describe '#translateMap()', ->
+
 		it 'should throw an error if object is not array or object', ->
 			expect( -> translator.translateMap(new Date)).to.throw(Error)
 
@@ -225,9 +280,32 @@ describe 'Translator', ->
 			]])
 
 	describe '#setCacheStorage()', ->
+
 		it 'should throw an exception if storage is not the right type', ->
 			expect( -> translator.setCacheStorage(new Array) ).throw(Error)
 
 		it 'should create cache instance', ->
 			translator.setCacheStorage(new BrowserLocalStorage)
 			expect(translator.cache).to.be.an.instanceof(Cache)
+
+	describe '#expand()', ->
+
+		it 'should expand base translate method', ->
+			main = translator.expand({})
+			expect(main._('web.pages.homepage.promo.title')).to.be.equal('Title of promo box')
+
+		it 'should expand translatePairs method', ->
+			main = translator.expand({})
+			expect(main._p('web.pages.homepage.promo', 'keys', 'values')).to.be.eql(
+				'1st title': '1st text'
+				'2nd title': '2nd text'
+				'3rd title': '3rd text'
+				'4th title': '4th text'
+			)
+
+		it 'should expand translateMap method', ->
+			main = translator.expand({})
+			expect(main._m(['web.pages.homepage.promo.title', 'web.pages.homepage.promo.info'])).to.be.eql([
+				'Title of promo box'
+				'Some info text'
+			])

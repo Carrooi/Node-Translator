@@ -2,6 +2,8 @@
 [![Dependency Status](https://gemnasium.com/sakren/node-translator.png)](https://gemnasium.com/sakren/node-translator)
 [![Build Status](https://travis-ci.org/sakren/node-translator.png?branch=master)](https://travis-ci.org/sakren/node-translator)
 
+[![Donate](http://b.repl.ca/v1/donate-PayPal-brightgreen.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5Q9KQUFWXR3MQ)
+
 # translator
 
 Node translator with plural forms support. Works also in browser (for example with [simq](https://npmjs.org/package/simq)).
@@ -50,16 +52,17 @@ When you have got your dictionaries, you can setup translator and start using it
 
 ```
 var Translator = require('translator');
-var translator = new Translator('/app/lang');
+var translator = new Translator('./app/lang');
 
 translator.language = 'en';
 
 var message = translator.translate('homepage.promo.box.text');		// output: and some really long text
 ```
 
-You have to set language, and base directory path. Be careful with this, because if you set relative path, then it will
-be relative to Translator class. Translator using require function for loading dictionaries, so it not depends on fs module
-and can be used also on browser.
+*Relative paths to dictionaries can not be used in browser.*
+
+You have to set language, and base directory path. Translator using require function for loading dictionaries, so it
+not depends on fs module and can be used also on browser.
 
 Then you can begin with translating. You can see that messages to translate are paths to your dictionary files but with
 dots instead of slashes and without language code.
@@ -348,6 +351,38 @@ Of course you can pass any argument you need, you only have to keep the right or
 translator.translateMap(arrayOrObjectToTranslate, countForPluralForms, objectWithReplacements, basePathString);
 ```
 
+## Temporary override language
+
+There may be some cases when you need to get translations for different language.
+
+```
+var translator = new Translator('./app/lang');
+translator.language = 'en';
+
+var message = translator.translate('cs|homepage.title');
+```
+
+Now in `message` variable will be translation of `homepage.title` in czech language.
+
+## Access translate methods globally
+
+Methods `translate`, `translatePairs` and `translateMap` can be accessible from everywhere globally. You just have to
+call method `expand`.
+
+```
+translator.expand();
+```
+
+Usage:
+```
+var title = _('homepage.title');
+```
+
+Expanded methods:
+* `_`: shortcut to `translate` method
+* `_p`: shortcut to `translatePairs` method
+* `_m`: shortcut to `translateMap` method
+
 ## Comments in dictionaries
 
 You can write some comments into your dictionaries. These comments has to be enclosed into `#`.
@@ -384,15 +419,16 @@ Or with lists:
 Turning on cache will make loading your dictionaries faster. They don't need to be parsed in any way, because parsed version
 is already in cache.
 
-This translator uses [cache-storage](https://npmjs.org/package/cache-storage) package.
+This translator uses [cache-storage](https://npmjs.org/package/cache-storage) package. Only synchronous storages from
+[cache-storage](https://npmjs.org/package/cache-storage) can be used.
 
 ```
-var FileStorage = require('cache-storage/Storage/FileStorage');
+var FileSyncStorage = require('cache-storage/Storage/FileSyncStorage');
 
-translator.setCacheStorage(new FileStorage('./path/to/cache/directory'));
+translator.setCacheStorage(new FileSyncStorage('./path/to/cache/directory'));
 ```
 
-Unfortunately now there is no way to use caching in browser.
+Caching in browser is supported only with [simq](https://github.com/sakren/node-simq).
 
 ## Tests
 
@@ -400,11 +436,18 @@ Unfortunately now there is no way to use caching in browser.
 $ npm test
 ```
 
-There are also tests for browser, but because of this strange [bug](https://github.com/metaskills/mocha-phantomjs/issues/105),
-they will fail. If you want to run them, you have to open `./test/browser/index.html` file in your browser or run
-`npm run test-browser` command.
-
 ## Changelog
+
+* 1.8.0
+	+ Updated dependencies
+	+ Created API [#7]
+	+ Expanding translate methods into global objects [#10]
+	+ Option for temporary overriding language [#9]
+	+ Added method `hasTranslation` [#8]
+	+ Creating translator from config file (for API)
+	+ Optimized tests
+	+ Tests for browser again works
+	+ Creating translator from relative path to dictionaries
 
 * 1.7.2
 	+ Bug with dictionaries in root

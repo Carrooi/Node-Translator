@@ -1,16 +1,19 @@
 Cache = require 'cache-storage'
-Storage = require 'cache-storage/Storage/Storage'
+Storage = require 'cache-storage/lib/Storage/Storage'
 Args = require 'normalize-arguments'
+path = require './node/path'
 
 pluralForms = require './pluralForms'
 Loader = require './Loaders/Loader'
 JsonLoader = require './Loaders/Json'
 
+isBrowser = typeof window != 'undefined'
+
+if !isBrowser
+	callsite = require 'callsite'
 
 class Translator
 
-
-	directory: '/app/lang'
 
 	loader: null
 
@@ -25,21 +28,57 @@ class Translator
 	cache: null
 
 
-	constructor: (directoryOrLoader) ->
+	constructor: (pathOrLoader) ->
 		@plurals = {}
 		@replacements = {}
 		@data = {}
 
-		if !directoryOrLoader
-			throw new Error 'You have to set path to base directory or loader.'
+		if !pathOrLoader
+			throw new Error 'You have to set path to base directory or to config file or loader.'
 
-		if typeof directoryOrLoader == 'string'
-			directoryOrLoader = new JsonLoader(directoryOrLoader)
+		if typeof pathOrLoader == 'string'
+			if pathOrLoader.charAt(0) == '.' && isBrowser
+				throw new Error 'Relative paths to dictionaries is not supported in browser.'
 
-		@setLoader(directoryOrLoader)
+			if pathOrLoader.charAt(0) == '.'
+				stack = callsite()
+				pathOrLoader = path.join(path.dirname(stack[1].getFileName()), pathOrLoader)
+
+			pathOrLoader = path.normalize(pathOrLoader)
+
+			config =
+				path: pathOrLoader
+				loader: 'Json'
+
+			if pathOrLoader.match(/\.json$/) != null
+				_config = require(pathOrLoader)
+
+				if typeof _config.path != 'undefined'
+					config.path = _config.path
+
+				if typeof _config.loader != 'undefined'
+					config.loader = _config.loader
+
+				if config.path.charAt(0) == '.'
+					config.path = path.join(path.dirname(pathOrLoader), config.path)
+
+			pathOrLoader = new(require './Loaders/' + config.loader)(config.path)
+
+		@setLoader(pathOrLoader)
 
 		for language, data of pluralForms
 			@addPluralForm(language, data.count, data.form)
+
+
+	expand: (main = null) ->
+		if main == null
+			main = if isBrowser then window else global
+
+		main._ = => @translate.apply(@, arguments)
+		main._m = => @translateMap.apply(@, arguments)
+		main._p = => @translatePairs.apply(@, arguments)
+
+		return main
 
 
 	setLoader: (loader) ->
@@ -80,28 +119,28 @@ class Translator
 		return @
 
 
-	loadCategory: (path, name) ->
-		categoryName = path + '/' + name
+	loadCategory: (_path, name, language = @language) ->
+		categoryName = _path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
 			if @cache == null
-				data = @loader.load(path, name, @language)
+				data = @loader.load(_path, name, language)
 				data = @normalizeTranslations(data)
 			else
-				data = @cache.load(@language + ':' + categoryName)
+				data = @cache.load(language + ':' + categoryName)
 
 				if data == null
-					data = @loader.load(path, name, @language)
+					data = @loader.load(_path, name, language)
 					data = @normalizeTranslations(data)
 
 					conds = {}
 					if typeof window == 'undefined' || (typeof window != 'undefined' && window.require.simq == true && typeof window.require.version != 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)
-						path = @loader.getFileSystemPath(path, name, @language)
-						conds.files = [path] if path != null
+						_path = @loader.getFileSystemPath(_path, name, language)
+						conds.files = [_path] if _path != null
 
-					@cache.save(@language + ':' + categoryName, data, conds)
+					@cache.save(language + ':' + categoryName, data, conds)
 
 				else
-					file = @loader.load(path, name, @language)
+					file = @loader.load(_path, name, language)
 					data = @normalizeTranslations(file)
 
 			@data[categoryName] = data
@@ -136,20 +175,22 @@ class Translator
 		return result
 
 
-	findTranslation: (message) ->
+	hasTranslation: (message, language = @language) ->
+		return @findTranslation(message, language) != null
+
+
+	findTranslation: (message, language = @language) ->
 		info = @getMessageInfo(message)
-		data = @loadCategory(info.path, info.category)
+		data = @loadCategory(info.path, info.category, language)
 		return if typeof data[info.name] == 'undefined' then null else data[info.name]
 
 
 	translate: (message, count = null, args = {}) ->
-		if @language == null
-			throw new Error 'You have to set language'
-
 		params = Args(arguments, [Args.any, Args.number(null), Args.object({})])
 		message = params[0]
 		count = params[1]
 		args = params[2]
+		language = @language
 
 		if typeof message != 'string' then return message
 
@@ -157,14 +198,23 @@ class Translator
 
 		if (match = message.match(/^\:(.*)\:$/)) != null
 			message = match[1]
+			if (match = message.match(/^[a-z]+\|(.*)$/)) != null
+				message = match[1]
 		else
+			if (match = message.match(/^([a-z]+)\|(.*)$/)) != null
+				language = match[1]
+				message = match[2]
+
+			if language == null
+				throw new Error 'You have to set language'
+
 			num = null
 			if (match = message.match(/(.+)\[(\d+)\]$/)) != null
 				message = match[1]
 				num = parseInt(match[2])
 
 			message = @applyReplacements(message, args)
-			translation = @findTranslation(message)
+			translation = @findTranslation(message, language)
 
 			if num != null
 				if !@isList(translation)
@@ -176,7 +226,7 @@ class Translator
 				translation = translation[num]
 
 			if translation != null
-				message = @pluralize(message, translation, count)
+				message = @pluralize(message, translation, count, language)
 
 		message = @prepareTranslation(message, args)
 
@@ -231,10 +281,10 @@ class Translator
 		return Object.prototype.toString.call(translation[0]) == '[object Array]'
 
 
-	pluralize: (message, translation, count = null) ->
+	pluralize: (message, translation, count = null, language = @language) ->
 		if count != null
 			if typeof translation[0] == 'string'
-				pluralForm = 'n=' + count + ';plural=+(' + @plurals[@language].form + ');'
+				pluralForm = 'n=' + count + ';plural=+(' + @plurals[language].form + ');'
 
 				n = null
 				plural = null
@@ -244,7 +294,7 @@ class Translator
 				message = if plural != null && typeof translation[plural] != 'undefined' then translation[plural] else translation[0]
 			else
 				result = []
-				result.push(@pluralize(message, t, count)) for t in translation
+				result.push(@pluralize(message, t, count, language)) for t in translation
 				message = result
 		else
 			if typeof translation[0] == 'string'
@@ -284,13 +334,13 @@ class Translator
 
 	getMessageInfo: (message) ->
 		num = message.lastIndexOf('.')
-		path = message.substr(0, num)
+		_path = message.substr(0, num)
 		name = message.substr(num + 1)
-		num = path.lastIndexOf('.')
-		category = path.substr(num + 1)
-		path = path.substr(0, num).replace(/\./g, '/')
+		num = _path.lastIndexOf('.')
+		category = _path.substr(num + 1)
+		_path = _path.substr(0, num).replace(/\./g, '/')
 		result =
-			path: path
+			path: _path
 			category: category
 			name: name
 		return result
