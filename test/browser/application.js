@@ -4155,6 +4155,10 @@
 		      return result;
 		    };
 		
+		    Translator.prototype.hasTranslation = function(message) {
+		      return this.findTranslation(message) !== null;
+		    };
+		
 		    Translator.prototype.findTranslation = function(message) {
 		      var data, info;
 		      info = this.getMessageInfo(message);
@@ -4475,6 +4479,14 @@
 		      });
 		      return it('should return null when translation does not exists', function() {
 		        return expect(translator.findTranslation('some.unknown.translation')).to.be["null"];
+		      });
+		    });
+		    describe('#hasTranslation()', function() {
+		      it('should return true when translation exists', function() {
+		        return expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be["true"];
+		      });
+		      return it('should return false when translation does not exists', function() {
+		        return expect(translator.hasTranslation('some.unknown.translation')).to.be["false"];
 		      });
 		    });
 		    describe('#pluralize()', function() {

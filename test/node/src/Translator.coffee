@@ -121,6 +121,14 @@ describe 'Translator', ->
 		it 'should return null when translation does not exists', ->
 			expect(translator.findTranslation('some.unknown.translation')).to.be.null
 
+	describe '#hasTranslation()', ->
+
+		it 'should return true when translation exists', ->
+			expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be.true
+
+		it 'should return false when translation does not exists', ->
+			expect(translator.hasTranslation('some.unknown.translation')).to.be.false
+
 	describe '#pluralize()', ->
 
 		it 'should return right version of translation(s) by count', ->
