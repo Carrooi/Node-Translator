@@ -418,15 +418,16 @@ Or with lists:
 Turning on cache will make loading your dictionaries faster. They don't need to be parsed in any way, because parsed version
 is already in cache.
 
-This translator uses [cache-storage](https://npmjs.org/package/cache-storage) package.
+This translator uses [cache-storage](https://npmjs.org/package/cache-storage) package. Only synchronous storages from
+[cache-storage](https://npmjs.org/package/cache-storage) can be used.
 
 ```
-var FileStorage = require('cache-storage/Storage/FileStorage');
+var FileSyncStorage = require('cache-storage/Storage/FileSyncStorage');
 
-translator.setCacheStorage(new FileStorage('./path/to/cache/directory'));
+translator.setCacheStorage(new FileSyncStorage('./path/to/cache/directory'));
 ```
 
-Unfortunately now there is no way to use caching in browser.
+Unfortunately now there is no way how to use caching in browser.
 
 ## Tests
 

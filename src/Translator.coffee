@@ -1,5 +1,5 @@
 Cache = require 'cache-storage'
-Storage = require 'cache-storage/Storage/Storage'
+Storage = require 'cache-storage/lib/Storage/Storage'
 Args = require 'normalize-arguments'
 path = require './node/path'
 

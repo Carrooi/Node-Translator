@@ -21,16 +21,16 @@
 	},
 	"main": "./lib/Translator.js",
 	"dependencies": {
-		"cache-storage": "1.4.1",
-		"normalize-arguments": "1.2.0",
-		"callsite": "1.0.0",
+		"cache-storage": "~2.0.0",
+		"normalize-arguments": "~1.2.0",
+		"callsite": "~1.0.0",
 		"fs-finder": "~1.8.0"
 	},
 	"devDependencies": {
-		"chai": "1.8.1",
-		"mocha": "1.15.1",
-		"mocha-phantomjs": "3.1.6",
-		"phantomjs": "1.9.2-4"
+		"chai": "~1.8.1",
+		"mocha": "~1.17.1",
+		"mocha-phantomjs": "~3.3.1",
+		"phantomjs": "~1.9.6-0"
 	},
 	"scripts": {
 		"test": "npm run test-node && npm run test-browser",
