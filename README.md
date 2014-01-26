@@ -52,16 +52,17 @@ When you have got your dictionaries, you can setup translator and start using it
 
 ```
 var Translator = require('translator');
-var translator = new Translator('/app/lang');
+var translator = new Translator('./app/lang');
 
 translator.language = 'en';
 
 var message = translator.translate('homepage.promo.box.text');		// output: and some really long text
 ```
 
-You have to set language, and base directory path. Be careful with this, because if you set relative path, then it will
-be relative to Translator class. Translator using require function for loading dictionaries, so it not depends on fs module
-and can be used also on browser.
+*Relative paths to dictionaries can not be used in browser.*
+
+You have to set language, and base directory path. Translator using require function for loading dictionaries, so it
+not depends on fs module and can be used also on browser.
 
 Then you can begin with translating. You can see that messages to translate are paths to your dictionary files but with
 dots instead of slashes and without language code.
@@ -427,7 +428,7 @@ var FileSyncStorage = require('cache-storage/Storage/FileSyncStorage');
 translator.setCacheStorage(new FileSyncStorage('./path/to/cache/directory'));
 ```
 
-Unfortunately now there is no way how to use caching in browser.
+Caching in browser is supported only with [simq](https://github.com/sakren/node-simq).
 
 ## Tests
 
@@ -436,6 +437,17 @@ $ npm test
 ```
 
 ## Changelog
+
+* 1.8.0
+	+ Updated dependencies
+	+ Created API [#7]
+	+ Expanding translate methods into global objects [#10]
+	+ Option for temporary overriding language [#9]
+	+ Added method `hasTranslation` [#8]
+	+ Creating translator from config file (for API)
+	+ Optimized tests
+	+ Tests for browser again works
+	+ Creating translator from relative path to dictionaries
 
 * 1.7.2
 	+ Bug with dictionaries in root
