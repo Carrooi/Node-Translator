@@ -361,6 +361,25 @@ var message = translator.translate('cs|homepage.title');
 
 Now in `message` variable will be translation of `homepage.title` in czech language.
 
+## Access translate methods globally
+
+Methods `translate`, `translatePairs` and `translateMap` can be accessible from everywhere globally. You just have to
+call method `expand`.
+
+```
+translator.expand();
+```
+
+Usage:
+```
+var title = _('homepage.title');
+```
+
+Expanded methods:
+* `_`: shortcut to `translate` method
+* `_p`: shortcut to `translatePairs` method
+* `_m`: shortcut to `translateMap` method
+
 ## Comments in dictionaries
 
 You can write some comments into your dictionaries. These comments has to be enclosed into `#`.

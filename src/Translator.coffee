@@ -7,9 +7,9 @@ pluralForms = require './pluralForms'
 Loader = require './Loaders/Loader'
 JsonLoader = require './Loaders/Json'
 
-isWindow = typeof window != 'undefined'
+isBrowser = typeof window != 'undefined'
 
-if !isWindow
+if !isBrowser
 	callsite = require 'callsite'
 
 class Translator
@@ -37,7 +37,7 @@ class Translator
 			throw new Error 'You have to set path to base directory or to config file or loader.'
 
 		if typeof pathOrLoader == 'string'
-			if pathOrLoader.charAt(0) == '.' && isWindow
+			if pathOrLoader.charAt(0) == '.' && isBrowser
 				throw new Error 'Relative paths to dictionaries is not supported in browser.'
 
 			if pathOrLoader.charAt(0) == '.'
@@ -59,6 +59,17 @@ class Translator
 
 		for language, data of pluralForms
 			@addPluralForm(language, data.count, data.form)
+
+
+	expand: (main = null) ->
+		if main == null
+			main = if isBrowser then window else global
+
+		main._ = => @translate.apply(@, arguments)
+		main._m = => @translateMap.apply(@, arguments)
+		main._p = => @translatePairs.apply(@, arguments)
+
+		return main
 
 
 	setLoader: (loader) ->

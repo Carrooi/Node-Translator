@@ -274,7 +274,7 @@
         return expect(translator.translateMap(['web.pages.homepage.promo.fruits'], 4)).to.be.eql([['4 bananas', '4 citrons', '4 oranges']]);
       });
     });
-    return describe('#setCacheStorage()', function() {
+    describe('#setCacheStorage()', function() {
       it('should throw an exception if storage is not the right type', function() {
         return expect(function() {
           return translator.setCacheStorage(new Array);
@@ -283,6 +283,28 @@
       return it('should create cache instance', function() {
         translator.setCacheStorage(new FileStorage(cache));
         return expect(translator.cache).to.be.an["instanceof"](Cache);
+      });
+    });
+    return describe('#expand()', function() {
+      it('should expand base translate method', function() {
+        var main;
+        main = translator.expand({});
+        return expect(main._('web.pages.homepage.promo.title')).to.be.equal('Title of promo box');
+      });
+      it('should expand translatePairs method', function() {
+        var main;
+        main = translator.expand({});
+        return expect(main._p('web.pages.homepage.promo', 'keys', 'values')).to.be.eql({
+          '1st title': '1st text',
+          '2nd title': '2nd text',
+          '3rd title': '3rd text',
+          '4th title': '4th text'
+        });
+      });
+      return it('should expand translateMap method', function() {
+        var main;
+        main = translator.expand({});
+        return expect(main._m(['web.pages.homepage.promo.title', 'web.pages.homepage.promo.info'])).to.be.eql(['Title of promo box', 'Some info text']);
       });
     });
   });
