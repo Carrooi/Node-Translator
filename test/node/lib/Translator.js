@@ -100,6 +100,14 @@
         return expect(translator.findTranslation('some.unknown.translation')).to.be["null"];
       });
     });
+    describe('#hasTranslation()', function() {
+      it('should return true when translation exists', function() {
+        return expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be["true"];
+      });
+      return it('should return false when translation does not exists', function() {
+        return expect(translator.hasTranslation('some.unknown.translation')).to.be["false"];
+      });
+    });
     describe('#pluralize()', function() {
       return it('should return right version of translation(s) by count', function() {
         var cars, fruits;

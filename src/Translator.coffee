@@ -155,6 +155,10 @@ class Translator
 		return result
 
 
+	hasTranslation: (message) ->
+		return @findTranslation(message) != null
+
+
 	findTranslation: (message) ->
 		info = @getMessageInfo(message)
 		data = @loadCategory(info.path, info.category)
