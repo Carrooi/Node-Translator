@@ -298,3 +298,25 @@ describe 'Translator', ->
 		it 'should create cache instance', ->
 			translator.setCacheStorage(new FileStorage(cache))
 			expect(translator.cache).to.be.an.instanceof(Cache)
+
+	describe '#expand()', ->
+
+		it 'should expand base translate method', ->
+			main = translator.expand({})
+			expect(main._('web.pages.homepage.promo.title')).to.be.equal('Title of promo box')
+
+		it 'should expand translatePairs method', ->
+			main = translator.expand({})
+			expect(main._p('web.pages.homepage.promo', 'keys', 'values')).to.be.eql(
+				'1st title': '1st text'
+				'2nd title': '2nd text'
+				'3rd title': '3rd text'
+				'4th title': '4th text'
+			)
+
+		it 'should expand translateMap method', ->
+			main = translator.expand({})
+			expect(main._m(['web.pages.homepage.promo.title', 'web.pages.homepage.promo.info'])).to.be.eql([
+				'Title of promo box'
+				'Some info text'
+			])
