@@ -348,6 +348,19 @@ Of course you can pass any argument you need, you only have to keep the right or
 translator.translateMap(arrayOrObjectToTranslate, countForPluralForms, objectWithReplacements, basePathString);
 ```
 
+## Temporary override language
+
+There may be some cases when you need to get translations for different language.
+
+```
+var translator = new Translator('./app/lang');
+translator.language = 'en';
+
+var message = translator.translate('cs|homepage.title');
+```
+
+Now in `message` variable will be translation of `homepage.title` in czech language.
+
 ## Comments in dictionaries
 
 You can write some comments into your dictionaries. These comments has to be enclosed into `#`.

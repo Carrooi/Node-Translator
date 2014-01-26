@@ -4086,28 +4086,31 @@
 		      return this;
 		    };
 		
-		    Translator.prototype.loadCategory = function(_path, name) {
+		    Translator.prototype.loadCategory = function(_path, name, language) {
 		      var categoryName, conds, data, file;
+		      if (language == null) {
+		        language = this.language;
+		      }
 		      categoryName = _path + '/' + name;
 		      if (typeof this.data[categoryName] === 'undefined') {
 		        if (this.cache === null) {
-		          data = this.loader.load(_path, name, this.language);
+		          data = this.loader.load(_path, name, language);
 		          data = this.normalizeTranslations(data);
 		        } else {
-		          data = this.cache.load(this.language + ':' + categoryName);
+		          data = this.cache.load(language + ':' + categoryName);
 		          if (data === null) {
-		            data = this.loader.load(_path, name, this.language);
+		            data = this.loader.load(_path, name, language);
 		            data = this.normalizeTranslations(data);
 		            conds = {};
 		            if (typeof window === 'undefined' || (typeof window !== 'undefined' && window.require.simq === true && typeof window.require.version !== 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)) {
-		              _path = this.loader.getFileSystemPath(_path, name, this.language);
+		              _path = this.loader.getFileSystemPath(_path, name, language);
 		              if (_path !== null) {
 		                conds.files = [_path];
 		              }
 		            }
-		            this.cache.save(this.language + ':' + categoryName, data, conds);
+		            this.cache.save(language + ':' + categoryName, data, conds);
 		          } else {
-		            file = this.loader.load(_path, name, this.language);
+		            file = this.loader.load(_path, name, language);
 		            data = this.normalizeTranslations(file);
 		          }
 		        }
@@ -4155,14 +4158,20 @@
 		      return result;
 		    };
 		
-		    Translator.prototype.hasTranslation = function(message) {
-		      return this.findTranslation(message) !== null;
+		    Translator.prototype.hasTranslation = function(message, language) {
+		      if (language == null) {
+		        language = this.language;
+		      }
+		      return this.findTranslation(message, language) !== null;
 		    };
 		
-		    Translator.prototype.findTranslation = function(message) {
+		    Translator.prototype.findTranslation = function(message, language) {
 		      var data, info;
+		      if (language == null) {
+		        language = this.language;
+		      }
 		      info = this.getMessageInfo(message);
-		      data = this.loadCategory(info.path, info.category);
+		      data = this.loadCategory(info.path, info.category, language);
 		      if (typeof data[info.name] === 'undefined') {
 		        return null;
 		      } else {
@@ -4171,20 +4180,18 @@
 		    };
 		
 		    Translator.prototype.translate = function(message, count, args) {
-		      var match, num, params, translation;
+		      var language, match, num, params, translation;
 		      if (count == null) {
 		        count = null;
 		      }
 		      if (args == null) {
 		        args = {};
 		      }
-		      if (this.language === null) {
-		        throw new Error('You have to set language');
-		      }
 		      params = Args(arguments, [Args.any, Args.number(null), Args.object({})]);
 		      message = params[0];
 		      count = params[1];
 		      args = params[2];
+		      language = this.language;
 		      if (typeof message !== 'string') {
 		        return message;
 		      }
@@ -4193,14 +4200,24 @@
 		      }
 		      if ((match = message.match(/^\:(.*)\:$/)) !== null) {
 		        message = match[1];
+		        if ((match = message.match(/^[a-z]+\|(.*)$/)) !== null) {
+		          message = match[1];
+		        }
 		      } else {
+		        if ((match = message.match(/^([a-z]+)\|(.*)$/)) !== null) {
+		          language = match[1];
+		          message = match[2];
+		        }
+		        if (language === null) {
+		          throw new Error('You have to set language');
+		        }
 		        num = null;
 		        if ((match = message.match(/(.+)\[(\d+)\]$/)) !== null) {
 		          message = match[1];
 		          num = parseInt(match[2]);
 		        }
 		        message = this.applyReplacements(message, args);
-		        translation = this.findTranslation(message);
+		        translation = this.findTranslation(message, language);
 		        if (num !== null) {
 		          if (!this.isList(translation)) {
 		            throw new Error('Translation ' + message + ' is not a list.');
@@ -4211,7 +4228,7 @@
 		          translation = translation[num];
 		        }
 		        if (translation !== null) {
-		          message = this.pluralize(message, translation, count);
+		          message = this.pluralize(message, translation, count, language);
 		        }
 		      }
 		      message = this.prepareTranslation(message, args);
@@ -4283,14 +4300,17 @@
 		      return Object.prototype.toString.call(translation[0]) === '[object Array]';
 		    };
 		
-		    Translator.prototype.pluralize = function(message, translation, count) {
+		    Translator.prototype.pluralize = function(message, translation, count, language) {
 		      var n, plural, pluralForm, result, t, _i, _j, _len, _len1;
 		      if (count == null) {
 		        count = null;
 		      }
+		      if (language == null) {
+		        language = this.language;
+		      }
 		      if (count !== null) {
 		        if (typeof translation[0] === 'string') {
-		          pluralForm = 'n=' + count + ';plural=+(' + this.plurals[this.language].form + ');';
+		          pluralForm = 'n=' + count + ';plural=+(' + this.plurals[language].form + ');';
 		          n = null;
 		          plural = null;
 		          eval(pluralForm);
@@ -4299,7 +4319,7 @@
 		          result = [];
 		          for (_i = 0, _len = translation.length; _i < _len; _i++) {
 		            t = translation[_i];
-		            result.push(this.pluralize(message, t, count));
+		            result.push(this.pluralize(message, t, count, language));
 		          }
 		          message = result;
 		        }
@@ -4469,6 +4489,11 @@
 		          title: ['Title of promo box']
 		        });
 		      });
+		      it('should load dictionary for different language', function() {
+		        return expect(translator.loadCategory('web/pages/homepage', 'simple', 'cs')).to.be.eql({
+		          title: ['Titulek promo boxu']
+		        });
+		      });
 		      return it('should return empty object if dictionary does not exists', function() {
 		        return expect(translator.loadCategory('some/unknown', 'translation')).to.be.eql({});
 		      });
@@ -4477,20 +4502,32 @@
 		      it('should return english translations from dictionary', function() {
 		        return expect(translator.findTranslation('web.pages.homepage.promo.title')).to.be.eql(['Title of promo box']);
 		      });
-		      return it('should return null when translation does not exists', function() {
+		      it('should return translations from dictionary for different language', function() {
+		        return expect(translator.findTranslation('web.pages.homepage.simple.title', 'cs')).to.be.eql(['Titulek promo boxu']);
+		      });
+		      it('should return null when translation does not exists', function() {
 		        return expect(translator.findTranslation('some.unknown.translation')).to.be["null"];
+		      });
+		      return it('should return null when translation does not exists for given language', function() {
+		        return expect(translator.findTranslation('some.unknown.translation', 'cs')).to.be["null"];
 		      });
 		    });
 		    describe('#hasTranslation()', function() {
 		      it('should return true when translation exists', function() {
 		        return expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be["true"];
 		      });
-		      return it('should return false when translation does not exists', function() {
+		      it('should return true when translation exists for different language', function() {
+		        return expect(translator.hasTranslation('web.pages.homepage.simple.title', 'cs')).to.be["true"];
+		      });
+		      it('should return false when translation does not exists', function() {
 		        return expect(translator.hasTranslation('some.unknown.translation')).to.be["false"];
+		      });
+		      return it('should return false when translation does not exists for different language', function() {
+		        return expect(translator.hasTranslation('some.unknown.translation', 'cs')).to.be["false"];
 		      });
 		    });
 		    describe('#pluralize()', function() {
-		      return it('should return right version of translation(s) by count', function() {
+		      it('should return right version of translation(s) by count', function() {
 		        var cars, fruits;
 		        cars = ['1 car', '%count% cars'];
 		        expect(translator.pluralize('car', cars, 1)).to.be.equal('1 car');
@@ -4498,6 +4535,15 @@
 		        fruits = [['1 apple', '%count% apples'], ['1 orange', '%count% oranges']];
 		        expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 apple', '1 orange']);
 		        return expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% apples', '%count% oranges']);
+		      });
+		      return it('should return right version of translation(s) by count for different language', function() {
+		        var cars, fruits;
+		        cars = ['1 auto', '%count% auta', '%count% aut'];
+		        expect(translator.pluralize('car', cars, 1, 'cs')).to.be.equal('1 auto');
+		        expect(translator.pluralize('car', cars, 4, 'cs')).to.be.equal('%count% auta');
+		        fruits = [['1 jablko', '%count% jablka', '%count% jablek'], ['1 pomeranč', '%count% pomeranče', '%count% pomerančů']];
+		        expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 jablko', '1 pomeranč']);
+		        return expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% jablka', '%count% pomeranče']);
 		      });
 		    });
 		    describe('#prepareTranslation()', function() {
@@ -4558,10 +4604,16 @@
 		          return translator.translate('web.pages.homepage.promo.title[5]');
 		        })["throw"](Error);
 		      });
-		      return it('should throw an error when translating one item which does not exists', function() {
+		      it('should throw an error when translating one item which does not exists', function() {
 		        return expect(function() {
 		          return translator.translate('web.pages.homepage.promo.newList[5]');
 		        })["throw"](Error);
+		      });
+		      it('should return translated text from dictionary for different language', function() {
+		        return expect(translator.translate('cs|web.pages.homepage.simple.title')).to.be.equal('Titulek promo boxu');
+		      });
+		      return it('should return original text if text is eclosed in \':\'', function() {
+		        return expect(translator.translate(':cs|do.not.translate.me:')).to.be.equal('do.not.translate.me');
 		      });
 		    });
 		    describe('#translatePairs()', function() {
@@ -4670,6 +4722,25 @@
 		module.exports = (function() {
 		return {
 			"test": "hello"
+		}
+		}).call(this);
+		
+	
+	}, '/test/data/web/pages/homepage/cs.simple.json': function(exports, module) {
+	
+		/** node globals **/
+		var require = function(name) {return __r__c__.require(name, '/test/data/web/pages/homepage/cs.simple.json');};
+		require.resolve = function(name, parent) {if (parent === null) {parent = '/test/data/web/pages/homepage/cs.simple.json';} return __r__c__.require.resolve(name, parent);};
+		require.define = function(bundle) {__r__c__.require.define(bundle);};
+		require.cache = __r__c__.require.cache;
+		var __filename = '/test/data/web/pages/homepage/cs.simple.json';
+		var __dirname = '/test/data/web/pages/homepage';
+		var process = {cwd: function() {return '/';}, argv: ['node', '/test/data/web/pages/homepage/cs.simple.json'], env: {}};
+	
+		/** code **/
+		module.exports = (function() {
+		return {
+			"title": "Titulek promo boxu"
 		}
 		}).call(this);
 		

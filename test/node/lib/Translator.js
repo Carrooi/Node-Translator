@@ -88,6 +88,11 @@
           title: ['Title of promo box']
         });
       });
+      it('should load dictionary for different language', function() {
+        return expect(translator.loadCategory('web/pages/homepage', 'simple', 'cs')).to.be.eql({
+          title: ['Titulek promo boxu']
+        });
+      });
       return it('should return empty object if dictionary does not exists', function() {
         return expect(translator.loadCategory('some/unknown', 'translation')).to.be.eql({});
       });
@@ -96,20 +101,32 @@
       it('should return english translations from dictionary', function() {
         return expect(translator.findTranslation('web.pages.homepage.promo.title')).to.be.eql(['Title of promo box']);
       });
-      return it('should return null when translation does not exists', function() {
+      it('should return translations from dictionary for different language', function() {
+        return expect(translator.findTranslation('web.pages.homepage.simple.title', 'cs')).to.be.eql(['Titulek promo boxu']);
+      });
+      it('should return null when translation does not exists', function() {
         return expect(translator.findTranslation('some.unknown.translation')).to.be["null"];
+      });
+      return it('should return null when translation does not exists for given language', function() {
+        return expect(translator.findTranslation('some.unknown.translation', 'cs')).to.be["null"];
       });
     });
     describe('#hasTranslation()', function() {
       it('should return true when translation exists', function() {
         return expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be["true"];
       });
-      return it('should return false when translation does not exists', function() {
+      it('should return true when translation exists for different language', function() {
+        return expect(translator.hasTranslation('web.pages.homepage.simple.title', 'cs')).to.be["true"];
+      });
+      it('should return false when translation does not exists', function() {
         return expect(translator.hasTranslation('some.unknown.translation')).to.be["false"];
+      });
+      return it('should return false when translation does not exists for different language', function() {
+        return expect(translator.hasTranslation('some.unknown.translation', 'cs')).to.be["false"];
       });
     });
     describe('#pluralize()', function() {
-      return it('should return right version of translation(s) by count', function() {
+      it('should return right version of translation(s) by count', function() {
         var cars, fruits;
         cars = ['1 car', '%count% cars'];
         expect(translator.pluralize('car', cars, 1)).to.be.equal('1 car');
@@ -117,6 +134,15 @@
         fruits = [['1 apple', '%count% apples'], ['1 orange', '%count% oranges']];
         expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 apple', '1 orange']);
         return expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% apples', '%count% oranges']);
+      });
+      return it('should return right version of translation(s) by count for different language', function() {
+        var cars, fruits;
+        cars = ['1 auto', '%count% auta', '%count% aut'];
+        expect(translator.pluralize('car', cars, 1, 'cs')).to.be.equal('1 auto');
+        expect(translator.pluralize('car', cars, 4, 'cs')).to.be.equal('%count% auta');
+        fruits = [['1 jablko', '%count% jablka', '%count% jablek'], ['1 pomeranč', '%count% pomeranče', '%count% pomerančů']];
+        expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 jablko', '1 pomeranč']);
+        return expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% jablka', '%count% pomeranče']);
       });
     });
     describe('#prepareTranslation()', function() {
@@ -180,10 +206,16 @@
           return translator.translate('web.pages.homepage.promo.title[5]');
         })["throw"](Error);
       });
-      return it('should throw an error when translating one item which does not exists', function() {
+      it('should throw an error when translating one item which does not exists', function() {
         return expect(function() {
           return translator.translate('web.pages.homepage.promo.newList[5]');
         })["throw"](Error);
+      });
+      it('should return translated text from dictionary for different language', function() {
+        return expect(translator.translate('cs|web.pages.homepage.simple.title')).to.be.equal('Titulek promo boxu');
+      });
+      return it('should return original text if text is eclosed in \':\'', function() {
+        return expect(translator.translate(':cs|do.not.translate.me:')).to.be.equal('do.not.translate.me');
       });
     });
     describe('#translatePairs()', function() {
