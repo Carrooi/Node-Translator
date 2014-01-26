@@ -2,6 +2,8 @@
 [![Dependency Status](https://gemnasium.com/sakren/node-translator.png)](https://gemnasium.com/sakren/node-translator)
 [![Build Status](https://travis-ci.org/sakren/node-translator.png?branch=master)](https://travis-ci.org/sakren/node-translator)
 
+[![Donate](http://b.repl.ca/v1/donate-PayPal-brightgreen.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5Q9KQUFWXR3MQ)
+
 # translator
 
 Node translator with plural forms support. Works also in browser (for example with [simq](https://npmjs.org/package/simq)).
