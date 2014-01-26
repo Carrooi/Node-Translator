@@ -102,6 +102,11 @@ describe 'Translator', ->
 				title: ['Title of promo box']
 			)
 
+		it 'should load dictionary for different language', ->
+			expect(translator.loadCategory('web/pages/homepage', 'simple', 'cs')).to.be.eql(
+				title: ['Titulek promo boxu']
+			)
+
 		it 'should return empty object if dictionary does not exists', ->
 			expect(translator.loadCategory('some/unknown', 'translation')).to.be.eql({})
 
@@ -110,16 +115,28 @@ describe 'Translator', ->
 		it 'should return english translations from dictionary', ->
 			expect(translator.findTranslation('web.pages.homepage.promo.title')).to.be.eql(['Title of promo box'])
 
+		it 'should return translations from dictionary for different language', ->
+			expect(translator.findTranslation('web.pages.homepage.simple.title', 'cs')).to.be.eql(['Titulek promo boxu'])
+
 		it 'should return null when translation does not exists', ->
 			expect(translator.findTranslation('some.unknown.translation')).to.be.null
+
+		it 'should return null when translation does not exists for given language', ->
+			expect(translator.findTranslation('some.unknown.translation', 'cs')).to.be.null
 
 	describe '#hasTranslation()', ->
 
 		it 'should return true when translation exists', ->
 			expect(translator.hasTranslation('web.pages.homepage.promo.title')).to.be.true
 
+		it 'should return true when translation exists for different language', ->
+			expect(translator.hasTranslation('web.pages.homepage.simple.title', 'cs')).to.be.true
+
 		it 'should return false when translation does not exists', ->
 			expect(translator.hasTranslation('some.unknown.translation')).to.be.false
+
+		it 'should return false when translation does not exists for different language', ->
+			expect(translator.hasTranslation('some.unknown.translation', 'cs')).to.be.false
 
 	describe '#pluralize()', ->
 
@@ -131,6 +148,15 @@ describe 'Translator', ->
 			fruits = [['1 apple', '%count% apples'], ['1 orange', '%count% oranges']]
 			expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 apple', '1 orange'])
 			expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% apples', '%count% oranges'])
+
+		it 'should return right version of translation(s) by count for different language', ->
+			cars = ['1 auto', '%count% auta', '%count% aut']
+			expect(translator.pluralize('car', cars, 1, 'cs')).to.be.equal('1 auto')
+			expect(translator.pluralize('car', cars, 4, 'cs')).to.be.equal('%count% auta')
+
+			fruits = [['1 jablko', '%count% jablka', '%count% jablek'], ['1 pomeranč', '%count% pomeranče', '%count% pomerančů']]
+			expect(translator.pluralize('list', fruits, 1)).to.be.eql(['1 jablko', '1 pomeranč'])
+			expect(translator.pluralize('list', fruits, 4)).to.be.eql(['%count% jablka', '%count% pomeranče'])
 
 	describe '#prepareTranslation()', ->
 
@@ -188,6 +214,12 @@ describe 'Translator', ->
 
 		it 'should throw an error when translating one item which does not exists', ->
 			expect( -> translator.translate('web.pages.homepage.promo.newList[5]') ).throw(Error)
+
+		it 'should return translated text from dictionary for different language', ->
+			expect(translator.translate('cs|web.pages.homepage.simple.title')).to.be.equal('Titulek promo boxu')
+
+		it 'should return original text if text is eclosed in \':\'', ->
+			expect(translator.translate(':cs|do.not.translate.me:')).to.be.equal('do.not.translate.me')
 
 	describe '#translatePairs()', ->
 

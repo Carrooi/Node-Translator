@@ -99,28 +99,28 @@ class Translator
 		return @
 
 
-	loadCategory: (_path, name) ->
+	loadCategory: (_path, name, language = @language) ->
 		categoryName = _path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
 			if @cache == null
-				data = @loader.load(_path, name, @language)
+				data = @loader.load(_path, name, language)
 				data = @normalizeTranslations(data)
 			else
-				data = @cache.load(@language + ':' + categoryName)
+				data = @cache.load(language + ':' + categoryName)
 
 				if data == null
-					data = @loader.load(_path, name, @language)
+					data = @loader.load(_path, name, language)
 					data = @normalizeTranslations(data)
 
 					conds = {}
 					if typeof window == 'undefined' || (typeof window != 'undefined' && window.require.simq == true && typeof window.require.version != 'undefined' && parseInt(window.require.version.replace(/\./g, '')) >= 510)
-						_path = @loader.getFileSystemPath(_path, name, @language)
+						_path = @loader.getFileSystemPath(_path, name, language)
 						conds.files = [_path] if _path != null
 
-					@cache.save(@language + ':' + categoryName, data, conds)
+					@cache.save(language + ':' + categoryName, data, conds)
 
 				else
-					file = @loader.load(_path, name, @language)
+					file = @loader.load(_path, name, language)
 					data = @normalizeTranslations(file)
 
 			@data[categoryName] = data
@@ -155,24 +155,22 @@ class Translator
 		return result
 
 
-	hasTranslation: (message) ->
-		return @findTranslation(message) != null
+	hasTranslation: (message, language = @language) ->
+		return @findTranslation(message, language) != null
 
 
-	findTranslation: (message) ->
+	findTranslation: (message, language = @language) ->
 		info = @getMessageInfo(message)
-		data = @loadCategory(info.path, info.category)
+		data = @loadCategory(info.path, info.category, language)
 		return if typeof data[info.name] == 'undefined' then null else data[info.name]
 
 
 	translate: (message, count = null, args = {}) ->
-		if @language == null
-			throw new Error 'You have to set language'
-
 		params = Args(arguments, [Args.any, Args.number(null), Args.object({})])
 		message = params[0]
 		count = params[1]
 		args = params[2]
+		language = @language
 
 		if typeof message != 'string' then return message
 
@@ -180,14 +178,23 @@ class Translator
 
 		if (match = message.match(/^\:(.*)\:$/)) != null
 			message = match[1]
+			if (match = message.match(/^[a-z]+\|(.*)$/)) != null
+				message = match[1]
 		else
+			if (match = message.match(/^([a-z]+)\|(.*)$/)) != null
+				language = match[1]
+				message = match[2]
+
+			if language == null
+				throw new Error 'You have to set language'
+
 			num = null
 			if (match = message.match(/(.+)\[(\d+)\]$/)) != null
 				message = match[1]
 				num = parseInt(match[2])
 
 			message = @applyReplacements(message, args)
-			translation = @findTranslation(message)
+			translation = @findTranslation(message, language)
 
 			if num != null
 				if !@isList(translation)
@@ -199,7 +206,7 @@ class Translator
 				translation = translation[num]
 
 			if translation != null
-				message = @pluralize(message, translation, count)
+				message = @pluralize(message, translation, count, language)
 
 		message = @prepareTranslation(message, args)
 
@@ -254,10 +261,10 @@ class Translator
 		return Object.prototype.toString.call(translation[0]) == '[object Array]'
 
 
-	pluralize: (message, translation, count = null) ->
+	pluralize: (message, translation, count = null, language = @language) ->
 		if count != null
 			if typeof translation[0] == 'string'
-				pluralForm = 'n=' + count + ';plural=+(' + @plurals[@language].form + ');'
+				pluralForm = 'n=' + count + ';plural=+(' + @plurals[language].form + ');'
 
 				n = null
 				plural = null
@@ -267,7 +274,7 @@ class Translator
 				message = if plural != null && typeof translation[plural] != 'undefined' then translation[plural] else translation[0]
 			else
 				result = []
-				result.push(@pluralize(message, t, count)) for t in translation
+				result.push(@pluralize(message, t, count, language)) for t in translation
 				message = result
 		else
 			if typeof translation[0] == 'string'
