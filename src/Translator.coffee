@@ -46,14 +46,23 @@ class Translator
 
 			pathOrLoader = path.normalize(pathOrLoader)
 
+			config =
+				path: pathOrLoader
+				loader: 'Json'
+
 			if pathOrLoader.match(/\.json$/) != null
-				configPath = pathOrLoader
-				pathOrLoader = require(configPath).path
+				_config = require(pathOrLoader)
 
-				if pathOrLoader.charAt(0) == '.'
-					pathOrLoader = path.join(path.dirname(configPath), pathOrLoader)
+				if typeof _config.path != 'undefined'
+					config.path = _config.path
 
-			pathOrLoader = new JsonLoader(pathOrLoader)
+				if typeof _config.loader != 'undefined'
+					config.loader = _config.loader
+
+				if config.path.charAt(0) == '.'
+					config.path = path.join(path.dirname(pathOrLoader), config.path)
+
+			pathOrLoader = new(require './Loaders/' + config.loader)(config.path)
 
 		@setLoader(pathOrLoader)
 

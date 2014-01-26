@@ -1,10 +1,11 @@
 Loader = require './Loader'
 path = require '../node/path'
 
-isWindow = typeof window != 'undefined'
+isBrowser = typeof window != 'undefined'
 
-if !isWindow
+if !isBrowser
 	callsite = require 'callsite'
+	fs = require 'fs'
 
 class Json extends Loader
 
@@ -13,14 +14,14 @@ class Json extends Loader
 
 
 	constructor: (@directory = @directory) ->
-		if @directory.charAt(0) == '.' && isWindow
+		if @directory.charAt(0) == '.' && isBrowser
 			throw new Error 'Relative paths to dictionaries is not supported in browser.'
 
 		if @directory.charAt(0) == '.'
 			stack = callsite()
 			@directory = path.dirname(stack[1].getFileName())
 
-		if !isWindow
+		if !isBrowser
 			@directory = path.normalize(@directory)
 
 

@@ -1,3 +1,6 @@
 {
-	"path": "."
+	"path": ".",
+	"languages": [
+		"sk"
+	]
 }
