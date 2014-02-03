@@ -232,6 +232,34 @@ describe 'Translator', ->
 		it 'should return original text if text is eclosed in \':\'', ->
 			expect(translator.translate(':cs|do.not.translate.me:')).to.be.equal('do.not.translate.me')
 
+		it 'should not apply filters to not translated messages', ->
+			translator.addFilter( (message) ->
+				return message.split('').reverse().join('')
+			)
+			expect(translator.translate('unknown.title')).to.be.equal('unknown.title')
+
+		it 'should not apply filters to not translatable messages', ->
+			translator.addFilter( (message) ->
+				return message.split('').reverse().join('')
+			)
+			expect(translator.translate(':web.pages.homepage.simple.title:')).to.be.equal('web.pages.homepage.simple.title')
+
+		it 'should apply filters to simple translations', ->
+			translator.addFilter( (message) ->
+				return message.split('').reverse().join('')
+			)
+			expect(translator.translate('web.pages.homepage.simple.title')).to.be.equal('xob omorp fo eltiT')
+
+		it 'should apply filters for lists of translations', ->
+			translator.addFilter( (message) ->
+				return message.split('').reverse().join('')
+			)
+			expect(translator.translate('web.pages.homepage.promo.fruits', 3)).to.be.eql([
+				'sananab 3'
+				'snortic 3'
+				'segnaro 3'
+			])
+
 	describe '#translatePairs()', ->
 
 		it 'should throw an error if message to translate are not arrays', ->
