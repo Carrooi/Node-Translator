@@ -451,6 +451,9 @@ $ npm test
 
 ## Changelog
 
+* 1.9.0
+	+ Added filters
+
 * 1.8.0
 	+ Updated dependencies
 	+ Created API [#7]
