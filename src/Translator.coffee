@@ -23,6 +23,8 @@ class Translator
 
 	replacements: null
 
+	filters: null
+
 	data: null
 
 	cache: null
@@ -31,6 +33,7 @@ class Translator
 	constructor: (pathOrLoader) ->
 		@plurals = {}
 		@replacements = {}
+		@filters = []
 		@data = {}
 
 		if !pathOrLoader
@@ -119,6 +122,24 @@ class Translator
 		return @
 
 
+	addFilter: (fn) ->
+		@filters.push(fn)
+		return @
+
+
+	applyFilters: (translation) ->
+		if Object.prototype.toString.call(translation) == '[object Array]'
+			for t, i in translation
+				translation[i] = @applyFilters(t)
+
+			return translation
+
+		for filter in @filters
+			translation = filter(translation)
+
+		return translation
+
+
 	loadCategory: (_path, name, language = @language) ->
 		categoryName = _path + '/' + name
 		if typeof @data[categoryName] == 'undefined'
@@ -191,6 +212,7 @@ class Translator
 		count = params[1]
 		args = params[2]
 		language = @language
+		found = false
 
 		if typeof message != 'string' then return message
 
@@ -206,7 +228,7 @@ class Translator
 				message = match[2]
 
 			if language == null
-				throw new Error 'You have to set language'
+				throw new Error 'You have to set language.'
 
 			num = null
 			if (match = message.match(/(.+)\[(\d+)\]$/)) != null
@@ -215,6 +237,8 @@ class Translator
 
 			message = @applyReplacements(message, args)
 			translation = @findTranslation(message, language)
+
+			found = @hasTranslation(message, language)
 
 			if num != null
 				if !@isList(translation)
@@ -229,6 +253,9 @@ class Translator
 				message = @pluralize(message, translation, count, language)
 
 		message = @prepareTranslation(message, args)
+
+		if found
+			message = @applyFilters(message)
 
 		return message
 
