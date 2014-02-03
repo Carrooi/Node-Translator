@@ -268,6 +268,8 @@
 		
 		    Translator.prototype.replacements = null;
 		
+		    Translator.prototype.filters = null;
+		
 		    Translator.prototype.data = null;
 		
 		    Translator.prototype.cache = null;
@@ -276,6 +278,7 @@
 		      var config, data, language, stack, _config;
 		      this.plurals = {};
 		      this.replacements = {};
+		      this.filters = [];
 		      this.data = {};
 		      if (!pathOrLoader) {
 		        throw new Error('You have to set path to base directory or to config file or loader.');
@@ -373,6 +376,28 @@
 		      return this;
 		    };
 		
+		    Translator.prototype.addFilter = function(fn) {
+		      this.filters.push(fn);
+		      return this;
+		    };
+		
+		    Translator.prototype.applyFilters = function(translation) {
+		      var filter, i, t, _i, _j, _len, _len1, _ref;
+		      if (Object.prototype.toString.call(translation) === '[object Array]') {
+		        for (i = _i = 0, _len = translation.length; _i < _len; i = ++_i) {
+		          t = translation[i];
+		          translation[i] = this.applyFilters(t);
+		        }
+		        return translation;
+		      }
+		      _ref = this.filters;
+		      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+		        filter = _ref[_j];
+		        translation = filter(translation);
+		      }
+		      return translation;
+		    };
+		
 		    Translator.prototype.loadCategory = function(_path, name, language) {
 		      var categoryName, conds, data, file;
 		      if (language == null) {
@@ -467,7 +492,7 @@
 		    };
 		
 		    Translator.prototype.translate = function(message, count, args) {
-		      var language, match, num, params, translation;
+		      var found, language, match, num, params, translation;
 		      if (count == null) {
 		        count = null;
 		      }
@@ -479,6 +504,7 @@
 		      count = params[1];
 		      args = params[2];
 		      language = this.language;
+		      found = false;
 		      if (typeof message !== 'string') {
 		        return message;
 		      }
@@ -496,7 +522,7 @@
 		          message = match[2];
 		        }
 		        if (language === null) {
-		          throw new Error('You have to set language');
+		          throw new Error('You have to set language.');
 		        }
 		        num = null;
 		        if ((match = message.match(/(.+)\[(\d+)\]$/)) !== null) {
@@ -505,6 +531,7 @@
 		        }
 		        message = this.applyReplacements(message, args);
 		        translation = this.findTranslation(message, language);
+		        found = this.hasTranslation(message, language);
 		        if (num !== null) {
 		          if (!this.isList(translation)) {
 		            throw new Error('Translation ' + message + ' is not a list.');
@@ -519,6 +546,9 @@
 		        }
 		      }
 		      message = this.prepareTranslation(message, args);
+		      if (found) {
+		        message = this.applyFilters(message);
+		      }
 		      return message;
 		    };
 		

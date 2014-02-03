@@ -199,6 +199,19 @@ translator.addReplacement('role', user.getRole());
 translator.translate('admin.%role%');
 ```
 
+## Filters (eg. markdown)
+
+If you want some special formatting in your translations (for example markdown syntax or others) you can add filter
+which will automatically transform all successfully translated messages.
+
+```
+translator.addFilter(function(message) {
+	return message.split('').reverse().join('');
+});
+
+console.log(translator.translate('homepage.title'));		// output is reversed title in homepage dictionary
+```
+
 ## List of translations
 
 Sometimes you may want to display list of texts but don't want to create translations with these names: item1, item2,
