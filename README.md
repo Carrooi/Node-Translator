@@ -1,14 +1,22 @@
-[![NPM version](https://badge.fury.io/js/translator.png)](http://badge.fury.io/js/translator)
-[![Dependency Status](https://gemnasium.com/sakren/node-translator.png)](https://gemnasium.com/sakren/node-translator)
-[![Build Status](https://travis-ci.org/sakren/node-translator.png?branch=master)](https://travis-ci.org/sakren/node-translator)
+[![NPM version](https://img.shields.io/npm/v/translator.svg?style=flat-square)](http://badge.fury.io/js/translator)
+[![Dependency Status](https://img.shields.io/gemnasium/Carrooi/Node-Translator.svg?style=flat-square)](https://gemnasium.com/Carrooi/Node-Translator)
+[![Build Status](https://img.shields.io/travis/Carrooi/Node-Translator.svg?style=flat-square)](https://travis-ci.org/Carrooi/Node-Translator)
 
-[![Donate](http://b.repl.ca/v1/donate-PayPal-brightgreen.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5Q9KQUFWXR3MQ)
+[![Donate](https://img.shields.io/badge/donate-PayPal-brightgreen.svg?style=flat-square)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5Q9KQUFWXR3MQ)
 
 # translator
 
 Node translator with plural forms support. Works also in browser (for example with [simq](https://npmjs.org/package/simq)).
 
 This package is compatible with [translator](https://packagist.org/packages/sakren/translator) for PHP.
+
+## Help
+
+Unfortunately I don't have any more time to maintain this repository :-( 
+
+Don't you want to save me and this project by taking over it?
+
+![sad cat](https://raw.githubusercontent.com/sakren/sakren.github.io/master/images/sad-kitten.jpg)
 
 ## Installation
 
@@ -450,6 +458,10 @@ $ npm test
 ```
 
 ## Changelog
+
+* 1.9.1
+	+ Move under Carrooi organization
+	+ Abandon package
 
 * 1.9.0
 	+ Added filters
