@@ -40,7 +40,7 @@
       it('should load translation from cache', function() {
         var t;
         translator.translate('web.pages.homepage.promo.title');
-        t = translator.cache.load('en:web/pages/homepage/promo');
+        t = translator.cache.load('en:web/pages/homepage/en.promo');
         expect(t).to.be.an('object');
         return expect(t).to.include.keys('title');
       });
