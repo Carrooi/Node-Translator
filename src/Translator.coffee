@@ -141,7 +141,7 @@ class Translator
 
 
 	loadCategory: (_path, name, language = @language) ->
-		categoryName = _path + '/' + name
+		categoryName = _path + '/' + language +'.'+ name;
 		if typeof @data[categoryName] == 'undefined'
 			if @cache == null
 				data = @loader.load(_path, name, language)
